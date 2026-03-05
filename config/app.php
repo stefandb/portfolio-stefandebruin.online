@@ -123,4 +123,6 @@ return [
         'store' => env('APP_MAINTENANCE_STORE', 'database'),
     ],
 
+    'tracking_excluded_ips' => env('TRACKING_EXCLUDED_IPS', ''),
+
 ];
