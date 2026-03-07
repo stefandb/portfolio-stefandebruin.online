@@ -7,7 +7,7 @@ use Illuminate\Database\Eloquent\Model;
 class PageVisit extends Model
 {
     /**
-     * @var array<int, string>
+     * @var list<string>
      */
     protected $fillable = [
         'url',
@@ -17,6 +17,9 @@ class PageVisit extends Model
         'trackable_type',
     ];
 
+    /**
+     * @return \Illuminate\Database\Eloquent\Relations\MorphTo<Model, $this>
+     */
     public function trackable(): \Illuminate\Database\Eloquent\Relations\MorphTo
     {
         return $this->morphTo();
