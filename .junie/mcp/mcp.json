@@ -9,12 +9,14 @@
         },
         "herd": {
             "command": "/Users/stefandebruin/Library/Application Support/Herd/bin/php84",
-            "args": [
-                "/Applications/Herd.app/Contents/Resources/herd-mcp.phar"
-            ],
+            "args": ["/Applications/Herd.app/Contents/Resources/herd-mcp.phar"],
             "env": {
                 "SITE_PATH": "/Volumes/Development/Repositories/portfolio-2026"
             }
+        },
+        "shadcnVue": {
+            "command": "npx",
+            "args": ["shadcn-vue@latest", "mcp"]
         }
     }
 }
