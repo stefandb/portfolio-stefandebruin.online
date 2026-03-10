@@ -23,9 +23,15 @@ export type UseCurrentUrlReturn = {
 };
 
 const page = usePage();
-const currentUrlReactive = computed(
-    () => new URL(page.url, window?.location.origin).pathname,
-);
+const currentUrlReactive = computed(() => {
+    const url = page.url;
+
+    if (typeof window === 'undefined') {
+        return url.split('?')[0];
+    }
+
+    return new URL(url, window.location.origin).pathname;
+});
 
 export function useCurrentUrl(): UseCurrentUrlReturn {
     function isCurrentUrl(
