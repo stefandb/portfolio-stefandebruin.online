@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { Head, Link, router } from '@inertiajs/vue3';
-import { ref, watch } from 'vue';
+import { ref, watch, provide, inject } from 'vue';
 
 import ProjectController from '@/actions/App/Http/Controllers/Admin/ProjectController';
 import { Badge } from '@/components/ui/badge';
@@ -11,7 +11,7 @@ import {
     SelectContent,
     SelectItem,
     SelectTrigger,
-    SelectValue
+    SelectValue,
 } from '@/components/ui/select';
 import {
     Table,
@@ -19,7 +19,7 @@ import {
     TableCell,
     TableHead,
     TableHeader,
-    TableRow
+    TableRow,
 } from '@/components/ui/table';
 import AppLayout from '@/layouts/AppLayout.vue';
 import type { BreadcrumbItem, PaginatedResponse, Project } from '@/types';
@@ -73,6 +73,14 @@ const deleteProject = (project: Project) => {
         router.delete(ProjectController.destroy.url({ project: project.id }));
     }
 };
+
+const realCreateLogoc = () => {
+    alert('jaaaaa');
+};
+
+provide('layoutActions', {
+    triggerCreate: realCreateLogoc,
+});
 </script>
 
 <template>
@@ -89,7 +97,9 @@ const deleteProject = (project: Project) => {
                             placeholder="Zoek projecten..."
                             class="pl-10"
                         />
-                        <span class="absolute inset-y-0 left-0 flex items-center pl-3 text-muted-foreground">
+                        <span
+                            class="absolute inset-y-0 left-0 flex items-center pl-3 text-muted-foreground"
+                        >
                             <Search class="size-4" />
                         </span>
                     </div>
@@ -100,16 +110,17 @@ const deleteProject = (project: Project) => {
                         </SelectTrigger>
                         <SelectContent>
                             <SelectItem value="all">Alle Statussen</SelectItem>
-                            <SelectItem value="published">Gepubliceerd</SelectItem>
+                            <SelectItem value="published"
+                                >Gepubliceerd</SelectItem
+                            >
                             <SelectItem value="draft">Concept</SelectItem>
                         </SelectContent>
                     </Select>
                 </div>
 
-                <Button :as="Link" :href="ProjectController.create.url()">
-                    <Plus class="mr-2 size-4" />
-                    Project Toevoegen
-                </Button>
+<!--                <Button :as="Link" :href="ProjectController.create.url()">-->
+<!--                    Project Toevoegen-->
+<!--                </Button>-->
             </div>
 
             <div class="rounded-md border">
@@ -125,23 +136,46 @@ const deleteProject = (project: Project) => {
                         </TableRow>
                     </TableHeader>
                     <TableBody>
-                        <TableRow v-for="project in projects.data" :key="project.id">
+                        <TableRow
+                            v-for="project in projects.data"
+                            :key="project.id"
+                        >
                             <TableCell class="font-medium">
                                 {{ project.title }}
                             </TableCell>
                             <TableCell>{{ project.company || '-' }}</TableCell>
                             <TableCell>{{ project.year }}</TableCell>
                             <TableCell>
-                                <Badge :variant="project.status === 'published' ? 'default' : 'secondary'">
-                                    {{ project.status === 'published' ? 'Gepubliceerd' : 'Concept' }}
+                                <Badge
+                                    :variant="
+                                        project.status === 'published'
+                                            ? 'default'
+                                            : 'secondary'
+                                    "
+                                >
+                                    {{
+                                        project.status === 'published'
+                                            ? 'Gepubliceerd'
+                                            : 'Concept'
+                                    }}
                                 </Badge>
                             </TableCell>
                             <TableCell>
                                 <div class="flex gap-2">
-                                    <a v-if="project.github_url" :href="project.github_url" target="_blank" class="text-muted-foreground hover:text-foreground">
+                                    <a
+                                        v-if="project.github_url"
+                                        :href="project.github_url"
+                                        target="_blank"
+                                        class="text-muted-foreground hover:text-foreground"
+                                    >
                                         <Github class="size-4" />
                                     </a>
-                                    <a v-if="project.demo_url" :href="project.demo_url" target="_blank" class="text-muted-foreground hover:text-foreground">
+                                    <a
+                                        v-if="project.demo_url"
+                                        :href="project.demo_url"
+                                        target="_blank"
+                                        class="text-muted-foreground hover:text-foreground"
+                                    >
                                         <ExternalLink class="size-4" />
                                     </a>
                                 </div>
@@ -152,7 +186,11 @@ const deleteProject = (project: Project) => {
                                         variant="ghost"
                                         size="icon"
                                         :as="Link"
-                                        :href="ProjectController.edit.url({ project: project.id })"
+                                        :href="
+                                            ProjectController.edit.url({
+                                                project: project.id,
+                                            })
+                                        "
                                     >
                                         <Pencil class="size-4" />
                                     </Button>
@@ -192,11 +230,17 @@ const deleteProject = (project: Project) => {
                         Vorige
                     </Button>
                     <div class="flex items-center gap-1">
-                        <template v-for="link in projects.links.slice(1, -1)" :key="link.label">
+                        <template
+                            v-for="link in projects.links.slice(1, -1)"
+                            :key="link.label"
+                        >
                             <Button
                                 variant="outline"
                                 size="sm"
-                                :class="{ 'bg-primary text-primary-foreground': link.active }"
+                                :class="{
+                                    'bg-primary text-primary-foreground':
+                                        link.active,
+                                }"
                                 :disabled="!link.url"
                                 @click="link.url && router.get(link.url)"
                             >
