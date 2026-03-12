@@ -19,11 +19,26 @@ const props = withDefaults(defineProps<Props>(), {
     id: () => `tiny-editor-${Math.random().toString(36).substring(2, 9)}`,
     height: 400,
     plugins: () => [
-        'advlist', 'autolink', 'lists', 'link', 'image', 'charmap', 'preview',
-        'anchor', 'searchreplace', 'visualblocks', 'code', 'fullscreen',
-        'insertdatetime', 'media', 'table', 'help', 'wordcount'
+        'advlist',
+        'autolink',
+        'lists',
+        'link',
+        'image',
+        'charmap',
+        'preview',
+        'anchor',
+        'searchreplace',
+        'visualblocks',
+        'code',
+        'fullscreen',
+        'insertdatetime',
+        'media',
+        'table',
+        'help',
+        'wordcount',
     ],
-    toolbar: 'undo redo | blocks | bold italic backcolor | alignleft aligncenter alignright alignjustify | bullist numlist outdent indent | removeformat | help',
+    toolbar:
+        'undo redo | blocks | bold italic backcolor | alignleft aligncenter alignright alignjustify | bullist numlist outdent indent | removeformat | help',
     options: () => ({}),
 });
 
@@ -36,11 +51,14 @@ const emit = defineEmits<{
 
 const editorValue = ref(props.modelValue);
 
-watch(() => props.modelValue, (newValue) => {
-    if (newValue !== editorValue.value) {
-        editorValue.value = newValue;
-    }
-});
+watch(
+    () => props.modelValue,
+    (newValue) => {
+        if (newValue !== editorValue.value) {
+            editorValue.value = newValue;
+        }
+    },
+);
 
 watch(editorValue, (newValue) => {
     emit('update:modelValue', newValue);
@@ -57,14 +75,13 @@ const initOptions = {
     content_css: 'default',
     ...props.options,
 };
-
-
 </script>
 
 <template>
     <div class="tinymce-container">
         <Editor
             :id="id"
+            api-key="p03ipftpmcy1trpjawqo4a7i23xwggdgftl0tkwp7n8a7b6a"
             v-model="editorValue"
             :init="initOptions"
             :disabled="disabled"

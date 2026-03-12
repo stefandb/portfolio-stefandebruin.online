@@ -1,6 +1,13 @@
 <script setup lang="ts">
 import { Head, Link, router } from '@inertiajs/vue3';
-import { ref, watch, provide, inject } from 'vue';
+import {
+    ExternalLink,
+    Github,
+    Pencil,
+    Search,
+    Trash2,
+} from 'lucide-vue-next';
+import { provide, ref, watch } from 'vue';
 
 import ProjectController from '@/actions/App/Http/Controllers/Admin/ProjectController';
 import { Badge } from '@/components/ui/badge';
@@ -74,12 +81,12 @@ const deleteProject = (project: Project) => {
     }
 };
 
-const realCreateLogoc = () => {
-    alert('jaaaaa');
+const goToCreate = () => {
+    router.visit(ProjectController.create.url());
 };
 
 provide('layoutActions', {
-    triggerCreate: realCreateLogoc,
+    triggerCreate: goToCreate,
 });
 </script>
 

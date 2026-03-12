@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use App\Http\Requests\Admin\StoreProjectRequest;
 use App\Http\Requests\Admin\UpdateProjectRequest;
 use App\Models\Project;
+use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Inertia\Inertia;
 use Inertia\Response;
@@ -23,7 +24,9 @@ class ProjectController extends Controller
                     ->orWhere('company', 'like', "%{$search}%");
             })
             ->when($request->input('status'), function ($query, $status) {
-                $query->where('status', $status);
+                if ($status !== 'all') {
+                    $query->where('status', $status);
+                }
             })
             ->latest()
             ->paginate(10)
@@ -38,48 +41,78 @@ class ProjectController extends Controller
     /**
      * Show the form for creating a new resource.
      */
-    public function create()
+    public function create(): Response
     {
-        //
+        return Inertia::render('Admin/Projects/Create');
     }
 
     /**
      * Store a newly created resource in storage.
      */
-    public function store(StoreProjectRequest $request)
+    public function store(StoreProjectRequest $request): RedirectResponse
     {
-        //
+        $project = Project::create($request->validated());
+
+        if ($request->has('tags')) {
+            $project->attachTags($request->tags);
+        }
+
+        if ($request->hasFile('images')) {
+            foreach ($request->file('images') as $image) {
+                $project->addMedia($image)->toMediaCollection('images');
+            }
+        }
+
+        return redirect()->route('admin.projects.index')->with('success', 'Project succesvol aangemaakt.');
     }
 
     /**
      * Display the specified resource.
      */
-    public function show(Project $project)
+    public function show(Project $project): Response
     {
-        //
+        return Inertia::render('Admin/Projects/Show', [
+            'project' => $project->load(['tags', 'media']),
+        ]);
     }
 
     /**
      * Show the form for editing the specified resource.
      */
-    public function edit(Project $project)
+    public function edit(Project $project): Response
     {
-        //
+        return Inertia::render('Admin/Projects/Edit', [
+            'project' => $project->load(['tags', 'media']),
+        ]);
     }
 
     /**
      * Update the specified resource in storage.
      */
-    public function update(UpdateProjectRequest $request, Project $project)
+    public function update(UpdateProjectRequest $request, Project $project): RedirectResponse
     {
-        //
+        $project->update($request->validated());
+
+        if ($request->has('tags')) {
+            $project->syncTags($request->tags);
+        }
+
+        if ($request->hasFile('images')) {
+            foreach ($request->file('images') as $image) {
+                $project->addMedia($image)->toMediaCollection('images');
+            }
+        }
+
+        return redirect()->route('admin.projects.index')->with('success', 'Project succesvol bijgewerkt.');
     }
 
     /**
      * Remove the specified resource from storage.
      */
-    public function destroy(Project $project)
+    public function destroy(Project $project): RedirectResponse
     {
-        //
+        $project->delete();
+
+        return redirect()->route('admin.projects.index')->with('success', 'Project succesvol verwijderd.');
     }
 }
