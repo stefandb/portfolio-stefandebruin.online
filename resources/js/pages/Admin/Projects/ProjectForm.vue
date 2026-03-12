@@ -1,11 +1,31 @@
 <script setup lang="ts">
 import { useForm } from '@inertiajs/vue3';
-import { watch } from 'vue';
+import { computed, ref, watch } from 'vue';
 import ProjectController from '@/actions/App/Http/Controllers/Admin/ProjectController';
 import TinyEditor from '@/components/TinyEditor.vue';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import {
+    Command,
+    CommandEmpty,
+    CommandGroup,
+    CommandInput,
+    CommandItem,
+    CommandList,
+} from '@/components/ui/command';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
+import {
+    Popover,
+    PopoverAnchor,
+    PopoverContent,
+} from '@/components/ui/popover';
+import {
+    TagsInput,
+    TagsInputInput,
+    TagsInputItem,
+    TagsInputItemDelete,
+    TagsInputItemText,
+} from '@/components/ui/tags-input';
 import { Textarea } from '@/components/ui/textarea';
 
 const slugify = (text: string) => {
@@ -71,10 +91,16 @@ const handleFileChange = (event: Event) => {
     }
 };
 
-const handleTagsChange = (event: Event) => {
-    const target = event.target as HTMLInputElement;
-    form.tags = target.value.split(' ').filter(t => t.trim() !== '');
-};
+const open = ref(false);
+const searchTerm = ref('');
+
+// Hier zouden we normaal gesproken alle beschikbare tags uit de database hebben
+// Voor nu een kleine mockup of later via een prop te vullen
+const availableTags = ['Laravel', 'Vue.js', 'Tailwind CSS', 'TypeScript', 'PHP', 'Inertia.js', 'PostgreSQL', 'Docker'];
+
+const filteredTags = computed(() => {
+    return availableTags.filter((tag) => !form.tags.includes(tag));
+});
 </script>
 
 <template>
@@ -125,9 +151,56 @@ const handleTagsChange = (event: Event) => {
                 </CardHeader>
                 <CardContent>
                     <div class="space-y-2">
-                        <Label for="tags">Tags (spatie gescheiden)</Label>
-                        <Input id="tags" :value="form.tags.join(' ')" @input="handleTagsChange" placeholder="laravel vue tailwind" />
-                        <p class="text-xs text-muted-foreground">Gebruik spaties om tags te scheiden.</p>
+                        <Label for="tags">Tags</Label>
+                        <TagsInput v-model="form.tags">
+                            <div class="flex flex-wrap items-center gap-2 rounded-md border border-input bg-background px-3 py-1.5 text-sm ring-offset-background focus-within:ring-2 focus-within:ring-ring focus-within:ring-offset-2">
+                                <TagsInputItem v-for="item in form.tags" :key="item" :value="item">
+                                    <TagsInputItemText />
+                                    <TagsInputItemDelete />
+                                </TagsInputItem>
+
+                                <Popover v-model:open="open">
+                                    <PopoverAnchor as-child>
+                                        <TagsInputInput
+                                            placeholder="Typ of selecteer tags..."
+                                            class="flex-1 border-none bg-transparent p-0 focus-visible:ring-0"
+                                            @focus="open = true"
+                                            v-model="searchTerm"
+                                        />
+                                    </PopoverAnchor>
+                                    <PopoverContent
+                                        class="w-[300px] p-0"
+                                        align="start"
+                                        :auto-focus="false"
+                                        @open-autofocus.prevent
+                                    >
+                                        <Command v-model:search-term="searchTerm">
+                                            <CommandInput placeholder="Zoek tag..." />
+                                            <CommandList>
+                                                <CommandEmpty>Geen tags gevonden.</CommandEmpty>
+                                                <CommandGroup>
+                                                    <CommandItem
+                                                        v-for="tag in filteredTags"
+                                                        :key="tag"
+                                                        :value="tag"
+                                                        @select="() => {
+                                                            if (!form.tags.includes(tag)) {
+                                                                form.tags.push(tag);
+                                                            }
+                                                            searchTerm = '';
+                                                            open = false;
+                                                        }"
+                                                    >
+                                                        {{ tag }}
+                                                    </CommandItem>
+                                                </CommandGroup>
+                                            </CommandList>
+                                        </Command>
+                                    </PopoverContent>
+                                </Popover>
+                            </div>
+                        </TagsInput>
+                        <p class="text-xs text-muted-foreground">Selecteer een tag uit de lijst of druk op Enter om een nieuwe tag toe te voegen.</p>
                         <div v-if="form.errors.tags" class="text-sm text-destructive">{{ form.errors.tags }}</div>
                     </div>
                 </CardContent>
@@ -140,6 +213,7 @@ const handleTagsChange = (event: Event) => {
                 </CardHeader>
                 <CardContent>
                     <div class="space-y-2">
+                        <Label for="images">Afbeeldingen</Label>
                         <Input id="images" type="file" multiple @change="handleFileChange" accept="image/*" />
                         <div v-if="form.errors.images" class="text-sm text-destructive">{{ form.errors.images }}</div>
 
