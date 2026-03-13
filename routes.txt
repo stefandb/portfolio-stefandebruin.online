@@ -1,0 +1,72 @@
+Route::get('/', HomeController::class)->name('home');
+
+Route::get('/projects', [ProjectController::class, 'index'])->name('projects.index');
+Route::get('/projects/{project:slug}', [ProjectController::class, 'show'])->name('projects.show');
+
+Route::get('/blog', [PostController::class, 'index'])->name('posts.index');
+Route::get('/blog/{post:slug}', [PostController::class, 'show'])->name('posts.show');
+Route::get('/blog/series/{series:slug}', SeriesController::class)
+    ->name('series.show');
+
+Route::get('/blog/tag/{tag:slug}', BlogTagController::class);
+Route::get('/projects/tag/{tag:slug}', ProjectTagController::class);
+
+Route::get('/about', AboutController::class)->name('about');
+Route::get('/contact', ContactController::class)->name('contact');
+
+
+Route::get('/blog/rss', BlogFeedController::class);
+Route::get('/sitemap.xml', SitemapController::class); (spatie sitemap package)
+
+
+
+
+admin
+Route::prefix('admin')
+    ->middleware(['auth'])
+    ->name('admin.')
+    ->group(function () {
+
+        Route::get('/', DashboardController::class)->name('dashboard');
+
+        Route::resource('projects', AdminProjectController::class);
+        Route::resource('posts', AdminPostController::class);
+
+        Route::post('/admin/uploads', UploadController::class)
+            ->middleware('auth');
+    });
+
+app/Http/Controllers
+│
+├── Web
+│   ├── HomeController
+│   ├── ProjectController
+│   ├── PostController
+│   ├── TagController
+│   └── AboutController
+│
+└── Admin
+    ├── DashboardController
+    ├── ProjectController
+    └── PostController
+
+
+resources/js/pages
+
+Home.vue
+
+Projects/
+    Index.vue
+    Show.vue
+
+Blog/
+    Index.vue
+    Show.vue
+
+Tags/
+    Show.vue
+
+Admin/
+    Dashboard.vue
+    Projects/
+    Posts/
