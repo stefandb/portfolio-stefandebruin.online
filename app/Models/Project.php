@@ -8,11 +8,13 @@ use Illuminate\Database\Eloquent\SoftDeletes;
 use Spatie\MediaLibrary\HasMedia;
 use Spatie\MediaLibrary\InteractsWithMedia;
 use Spatie\Tags\HasTags;
+use Spatie\Sluggable\HasSlug;
+use Spatie\Sluggable\SlugOptions;
 
 class Project extends Model implements HasMedia
 {
     /** @use HasFactory<\Database\Factories\ProjectFactory> */
-    use HasFactory, HasTags, InteractsWithMedia, SoftDeletes;
+    use HasFactory, HasTags, InteractsWithMedia, SoftDeletes, HasSlug;
 
     protected $fillable = [
         'title',
@@ -34,5 +36,11 @@ class Project extends Model implements HasMedia
             'published_at' => 'datetime',
             'year' => 'integer',
         ];
+    }
+    public function getSlugOptions(): SlugOptions
+    {
+        return SlugOptions::create()
+            ->generateSlugsFrom('title')
+            ->saveSlugsTo('slug');
     }
 }
