@@ -64,7 +64,7 @@ const addTag = (tag: string) => {
         <Label for="tags">Tags</Label>
         <TagsInput v-model="tags">
             <div
-                class="flex flex-wrap items-center gap-2 rounded-md border border-input bg-background px-3 py-1.5 text-sm ring-offset-background focus-within:ring-2 focus-within:ring-ring focus-within:ring-offset-2"
+                class="flex flex-wrap items-center gap-2 rounded-md bg-background px-3 py-1.5 text-sm"
             >
                 <TagsInputItem v-for="item in tags" :key="item" :value="item">
                     <TagsInputItemText />
