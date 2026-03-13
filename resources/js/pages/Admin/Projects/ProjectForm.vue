@@ -2,13 +2,13 @@
 import { useForm } from '@inertiajs/vue3';
 import { watch } from 'vue';
 import ProjectController from '@/actions/App/Http/Controllers/Admin/ProjectController';
+import ProjectExcerptInput from '@/components/ProjectExcerptInput.vue';
 import ProjectTagsInput from '@/components/ProjectTagsInput.vue';
 import SlugInput from '@/components/SlugInput.vue';
 import TinyEditor from '@/components/TinyEditor.vue';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
-import { Textarea } from '@/components/ui/textarea';
 
 const slugify = (text: string) => {
     return text
@@ -131,32 +131,11 @@ const handleFileChange = (event: Event) => {
                 <CardTitle>Samenvatting (Excerpt)</CardTitle>
             </CardHeader>
             <CardContent>
-                <div class="space-y-2">
-                    <div class="flex items-center justify-between">
-                        <Label for="excerpt">Samenvatting (Excerpt)</Label>
-                        <span
-                            class="text-xs text-muted-foreground"
-                            :class="{
-                                'text-destructive': form.excerpt.length > 200,
-                            }"
-                        >
-                            {{ form.excerpt.length }} / 200
-                        </span>
-                    </div>
-                    <Textarea
-                        id="excerpt"
-                        v-model="form.excerpt"
-                        placeholder="Korte beschrijving van het project"
-                        rows="3"
-                        maxlength="200"
-                    />
-                    <div
-                        v-if="form.errors.excerpt"
-                        class="text-sm text-destructive"
-                    >
-                        {{ form.errors.excerpt }}
-                    </div>
-                </div>
+                <ProjectExcerptInput
+                    v-model="form.excerpt"
+                    :description="form.content"
+                    :error="form.errors.excerpt"
+                />
             </CardContent>
         </Card>
 
