@@ -2,19 +2,22 @@
 
 namespace App\Models;
 
+use App\Observers\ProjectObserver;
+use Illuminate\Database\Eloquent\Attributes\ObservedBy;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Spatie\MediaLibrary\HasMedia;
 use Spatie\MediaLibrary\InteractsWithMedia;
-use Spatie\Tags\HasTags;
 use Spatie\Sluggable\HasSlug;
 use Spatie\Sluggable\SlugOptions;
+use Spatie\Tags\HasTags;
 
+#[ObservedBy(ProjectObserver::class)]
 class Project extends Model implements HasMedia
 {
     /** @use HasFactory<\Database\Factories\ProjectFactory> */
-    use HasFactory, HasTags, InteractsWithMedia, SoftDeletes, HasSlug;
+    use HasFactory, HasSlug, HasTags, InteractsWithMedia, SoftDeletes;
 
     protected $fillable = [
         'title',
@@ -37,6 +40,7 @@ class Project extends Model implements HasMedia
             'year' => 'integer',
         ];
     }
+
     public function getSlugOptions(): SlugOptions
     {
         return SlugOptions::create()
