@@ -3,6 +3,7 @@ import { useForm } from '@inertiajs/vue3';
 import { watch } from 'vue';
 import ProjectController from '@/actions/App/Http/Controllers/Admin/ProjectController';
 import ProjectTagsInput from '@/components/ProjectTagsInput.vue';
+import SlugInput from '@/components/SlugInput.vue';
 import TinyEditor from '@/components/TinyEditor.vue';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
@@ -102,17 +103,12 @@ const handleFileChange = (event: Event) => {
 
                     <div class="space-y-2">
                         <Label for="slug">Slug</Label>
-                        <Input
+                        <SlugInput
                             id="slug"
                             v-model="form.slug"
-                            placeholder="project-slug"
+                            :project-id="props.project?.id"
+                            :error="form.errors.slug"
                         />
-                        <div
-                            v-if="form.errors.slug"
-                            class="text-sm text-destructive"
-                        >
-                            {{ form.errors.slug }}
-                        </div>
                     </div>
                 </div>
 
