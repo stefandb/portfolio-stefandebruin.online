@@ -8,6 +8,12 @@ import ProjectForm from './ProjectForm.vue';
 
 const projectForm = ref<InstanceType<typeof ProjectForm> | null>(null);
 
+interface Props {
+    availableTags: string[];
+}
+
+const props = defineProps<Props>();
+
 const breadcrumbs: BreadcrumbItem[] = [
     {
         title: 'Projecten',
@@ -31,7 +37,7 @@ provide('layoutActions', {
 
     <AppLayout :breadcrumbs="breadcrumbs">
         <div class="flex h-full flex-1 flex-col gap-4 p-4">
-            <ProjectForm ref="projectForm" />
+            <ProjectForm ref="projectForm" :available-tags="props.availableTags" />
         </div>
     </AppLayout>
 </template>

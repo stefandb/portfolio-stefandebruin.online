@@ -22,6 +22,7 @@ const slugify = (text: string) => {
 
 interface Props {
     project?: any;
+    availableTags?: string[];
 }
 
 const props = defineProps<Props>();
@@ -148,6 +149,7 @@ const handleFileChange = (event: Event) => {
                 <CardContent>
                     <ProjectTagsInput
                         v-model="form.tags"
+                        :available-tags="props.availableTags ?? []"
                         :error="form.errors.tags"
                     />
                 </CardContent>

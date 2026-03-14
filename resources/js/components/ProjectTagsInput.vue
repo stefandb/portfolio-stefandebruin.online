@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { computed, ref } from 'vue';
+import { computed, ref, watch } from 'vue';
 import {
     Command,
     CommandEmpty,
@@ -30,7 +30,7 @@ interface Props {
 
 const props = withDefaults(defineProps<Props>(), {
     modelValue: () => [],
-    availableTags: () => ['Laravel', 'Vue.js', 'Tailwind CSS', 'TypeScript', 'PHP', 'Inertia.js', 'PostgreSQL', 'Docker'],
+    availableTags: () => [],
 });
 
 const emit = defineEmits<{
@@ -45,14 +45,34 @@ const tags = computed({
 const open = ref(false);
 const searchTerm = ref('');
 
+// Local list that merges server-provided tags with any newly created ones
+const knownTags = ref<string[]>([...props.availableTags]);
+
+watch(
+    () => props.availableTags,
+    (newTags) => {
+        for (const tag of newTags) {
+            if (!knownTags.value.includes(tag)) {
+                knownTags.value.push(tag);
+            }
+        }
+    },
+);
+
 const filteredTags = computed(() => {
-    return props.availableTags.filter((tag) => !tags.value.includes(tag));
+    const search = searchTerm.value.toLowerCase();
+    return knownTags.value.filter(
+        (tag) => !tags.value.includes(tag) && tag.toLowerCase().includes(search),
+    );
 });
 
 const addTag = (tag: string) => {
     if (!tags.value.includes(tag)) {
         const newTags = [...tags.value, tag];
         emit('update:modelValue', newTags);
+        if (!knownTags.value.includes(tag)) {
+            knownTags.value.push(tag);
+        }
     }
     searchTerm.value = '';
     open.value = false;

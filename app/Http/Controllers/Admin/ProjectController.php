@@ -10,6 +10,7 @@ use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Inertia\Inertia;
 use Inertia\Response;
+use Spatie\Tags\Tag;
 
 class ProjectController extends Controller
 {
@@ -43,7 +44,9 @@ class ProjectController extends Controller
      */
     public function create(): Response
     {
-        return Inertia::render('Admin/Projects/Create');
+        return Inertia::render('Admin/Projects/Create', [
+            'availableTags' => Tag::query()->orderBy('name->en')->get()->pluck('name')->filter()->values()->toArray(),
+        ]);
     }
 
     /**
@@ -83,6 +86,7 @@ class ProjectController extends Controller
     {
         return Inertia::render('Admin/Projects/Edit', [
             'project' => $project->load(['tags', 'media']),
+            'availableTags' => Tag::query()->orderBy('name->en')->get()->pluck('name')->filter()->values()->toArray(),
         ]);
     }
 

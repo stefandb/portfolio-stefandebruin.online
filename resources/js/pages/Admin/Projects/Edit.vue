@@ -10,6 +10,7 @@ const projectForm = ref<InstanceType<typeof ProjectForm> | null>(null);
 
 interface Props {
     project: any;
+    availableTags: string[];
 }
 
 const props = defineProps<Props>();
@@ -37,7 +38,7 @@ provide('layoutActions', {
 
     <AppLayout :breadcrumbs="breadcrumbs">
         <div class="flex h-full flex-1 flex-col gap-4 p-4">
-            <ProjectForm ref="projectForm" :project="props.project" />
+            <ProjectForm ref="projectForm" :project="props.project" :available-tags="props.availableTags" />
         </div>
     </AppLayout>
 </template>
