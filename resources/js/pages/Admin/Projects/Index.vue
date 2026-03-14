@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { Head, Link, router } from '@inertiajs/vue3';
+import { Head, Link, router, setLayoutProps } from '@inertiajs/vue3';
 import {
     ExternalLink,
     Github,
@@ -7,7 +7,7 @@ import {
     Search,
     Trash2,
 } from 'lucide-vue-next';
-import { provide, ref, watch } from 'vue';
+import { ref, watch } from 'vue';
 
 import ProjectController from '@/actions/App/Http/Controllers/Admin/ProjectController';
 import { Badge } from '@/components/ui/badge';
@@ -85,8 +85,11 @@ const goToCreate = () => {
     router.visit(ProjectController.create.url());
 };
 
-provide('layoutActions', {
-    triggerCreate: goToCreate,
+setLayoutProps({
+    primaryButton: {
+        label: 'Project Toevoegen',
+        onClick: goToCreate,
+    },
 });
 </script>
 

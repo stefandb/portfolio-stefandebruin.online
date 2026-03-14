@@ -4,7 +4,7 @@ import AppShell from '@/components/AppShell.vue';
 import AppSidebar from '@/components/AppSidebar.vue';
 import AppSidebarHeader from '@/components/AppSidebarHeader.vue';
 import type { BreadcrumbItem } from '@/types';
-import { provide } from 'vue';
+import { useLayoutProps } from '@inertiajs/vue3';
 
 type Props = {
     breadcrumbs?: BreadcrumbItem[];
@@ -14,20 +14,19 @@ withDefaults(defineProps<Props>(), {
     breadcrumbs: () => [],
 });
 
-// const layoutActions = {
-//     triggerCreate: () => {
-//         alert('fghfgh')
-//     },
-// };
-//
-// provide('layoutActions', layoutActions);
+const layout = useLayoutProps({
+    primaryButton: {
+        label: '',
+        onClick: () => {},
+    },
+});
 </script>
 
 <template>
     <AppShell variant="sidebar">
         <AppSidebar />
         <AppContent variant="sidebar" class="overflow-x-hidden">
-            <AppSidebarHeader :breadcrumbs="breadcrumbs" />
+            <AppSidebarHeader :breadcrumbs="breadcrumbs" :layout-props="layout" />
             <div>
                 <slot />
             </div>

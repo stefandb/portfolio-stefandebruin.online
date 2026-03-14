@@ -1,6 +1,6 @@
 <script setup lang="ts">
-import { Head } from '@inertiajs/vue3';
-import { provide, ref } from 'vue';
+import { Head, setLayoutProps } from '@inertiajs/vue3';
+import { ref } from 'vue';
 
 import AppLayout from '@/layouts/AppLayout.vue';
 import type { BreadcrumbItem } from '@/types';
@@ -26,9 +26,12 @@ const breadcrumbs: BreadcrumbItem[] = [
     },
 ];
 
-provide('layoutActions', {
-    triggerCreate: () => {
-        projectForm.value?.submit();
+setLayoutProps({
+    primaryButton: {
+        label: 'Project Bijwerken',
+        onClick: () => {
+            projectForm.value?.submit();
+        },
     },
 });
 </script>

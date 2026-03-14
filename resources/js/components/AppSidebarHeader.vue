@@ -1,26 +1,23 @@
 <script setup lang="ts">
-import { inject } from 'vue';
 import Breadcrumbs from '@/components/Breadcrumbs.vue';
 import { SidebarTrigger } from '@/components/ui/sidebar';
 import type { BreadcrumbItem } from '@/types';
-import { Link } from '@inertiajs/vue3';
-import ProjectController from '@/actions/App/Http/Controllers/Admin/ProjectController';
 import { Button } from '@/components/ui/button';
 
 withDefaults(
     defineProps<{
         breadcrumbs?: BreadcrumbItem[];
+        layoutProps: {
+            primaryButton: {
+                label: string;
+                onClick: () => void;
+            };
+        };
     }>(),
     {
         breadcrumbs: () => [],
     },
 );
-
-const primaryButtonClick = function () {
-    alert('click werkt. wajow');
-};
-
-const { triggerCreate } = inject('layoutActions', { triggerCreate: () => { alert('kkkk') } });
 </script>
 
 <template>
@@ -34,7 +31,12 @@ const { triggerCreate } = inject('layoutActions', { triggerCreate: () => { alert
                     <Breadcrumbs :breadcrumbs="breadcrumbs" />
                 </template>
 
-                <Button @click="triggerCreate()"> Project Toevoegen </Button>
+                <Button
+                    v-if="layoutProps.primaryButton.label"
+                    @click="layoutProps.primaryButton.onClick()"
+                >
+                    {{ layoutProps.primaryButton.label }}
+                </Button>
             </div>
         </div>
     </header>
