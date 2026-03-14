@@ -10,6 +10,7 @@ use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Inertia\Inertia;
 use Inertia\Response;
+use Spatie\MediaLibrary\MediaCollections\Models\Media;
 use Spatie\Tags\Tag;
 
 class ProjectController extends Controller
@@ -99,6 +100,14 @@ class ProjectController extends Controller
 
         if ($request->has('tags')) {
             $project->syncTags($request->tags);
+        }
+
+        if ($request->filled('deleted_media')) {
+            Media::query()
+                ->where('model_type', Project::class)
+                ->where('model_id', $project->id)
+                ->whereIn('id', $request->deleted_media)
+                ->each(fn (Media $media) => $media->delete());
         }
 
         if ($request->hasFile('images')) {

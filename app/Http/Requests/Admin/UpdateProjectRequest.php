@@ -29,6 +29,8 @@ class UpdateProjectRequest extends FormRequest
             'tags' => ['nullable', 'array'],
             'images' => ['nullable', 'array'],
             'images.*' => ['image', 'max:10240'], // 10MB limit
+            'deleted_media' => ['nullable', 'array'],
+            'deleted_media.*' => ['integer'],
             'company' => ['nullable', 'string', 'max:255'],
             'role' => ['nullable', 'string', 'max:255'],
             'year' => ['nullable', 'integer'],

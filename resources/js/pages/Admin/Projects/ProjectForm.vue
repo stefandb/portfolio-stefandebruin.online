@@ -1,11 +1,13 @@
 <script setup lang="ts">
 import { useForm } from '@inertiajs/vue3';
-import { watch } from 'vue';
+import { Trash2 } from 'lucide-vue-next';
+import { ref, watch } from 'vue';
 import ProjectController from '@/actions/App/Http/Controllers/Admin/ProjectController';
 import ProjectExcerptInput from '@/components/ProjectExcerptInput.vue';
 import ProjectTagsInput from '@/components/ProjectTagsInput.vue';
 import SlugInput from '@/components/SlugInput.vue';
 import TinyEditor from '@/components/TinyEditor.vue';
+import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
@@ -34,6 +36,7 @@ const form = useForm({
     excerpt: props.project?.excerpt ?? '',
     tags: props.project?.tags?.map((t: any) => t.name.en) ?? [],
     images: [] as File[],
+    deleted_media: [] as number[],
     company: props.project?.company ?? '',
     role: props.project?.role ?? '',
     year: props.project?.year ?? new Date().getFullYear(),
@@ -73,11 +76,23 @@ defineExpose({
     submit,
 });
 
+interface MediaItem {
+    id: number;
+    original_url: string;
+}
+
+const existingMedia = ref<MediaItem[]>(props.project?.media ?? []);
+
 const handleFileChange = (event: Event) => {
     const target = event.target as HTMLInputElement;
     if (target.files) {
         form.images = Array.from(target.files);
     }
+};
+
+const markMediaForDeletion = (mediaId: number) => {
+    form.deleted_media.push(mediaId);
+    existingMedia.value = existingMedia.value.filter((m) => m.id !== mediaId);
 };
 </script>
 
@@ -178,18 +193,27 @@ const handleFileChange = (event: Event) => {
                         </div>
 
                         <div
-                            v-if="props.project?.media?.length"
+                            v-if="existingMedia.length"
                             class="mt-4 grid grid-cols-2 gap-2"
                         >
                             <div
-                                v-for="media in props.project.media"
+                                v-for="media in existingMedia"
                                 :key="media.id"
-                                class="relative aspect-video overflow-hidden rounded-md border"
+                                class="group relative aspect-video overflow-hidden rounded-md border"
                             >
                                 <img
                                     :src="media.original_url"
                                     class="h-full w-full object-cover"
                                 />
+                                <Button
+                                    type="button"
+                                    variant="destructive"
+                                    size="icon"
+                                    class="absolute top-1 right-1 size-7 opacity-0 transition-opacity group-hover:opacity-100"
+                                    @click="markMediaForDeletion(media.id)"
+                                >
+                                    <Trash2 class="size-4" />
+                                </Button>
                             </div>
                         </div>
                     </div>
