@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { useForm } from '@inertiajs/vue3';
-import { Trash2 } from 'lucide-vue-next';
+import { Trash2, X } from 'lucide-vue-next';
 import { ref, watch } from 'vue';
 import ProjectController from '@/actions/App/Http/Controllers/Admin/ProjectController';
 import ProjectExcerptInput from '@/components/ProjectExcerptInput.vue';
@@ -83,11 +83,30 @@ interface MediaItem {
 
 const existingMedia = ref<MediaItem[]>(props.project?.media ?? []);
 
+interface PendingImage {
+    file: File;
+    previewUrl: string;
+}
+
+const pendingImages = ref<PendingImage[]>([]);
+
 const handleFileChange = (event: Event) => {
     const target = event.target as HTMLInputElement;
     if (target.files) {
-        form.images = Array.from(target.files);
+        const newPreviews = Array.from(target.files).map((file) => ({
+            file,
+            previewUrl: URL.createObjectURL(file),
+        }));
+        pendingImages.value.push(...newPreviews);
+        form.images = pendingImages.value.map((p) => p.file);
+        target.value = '';
     }
+};
+
+const removePendingImage = (index: number) => {
+    URL.revokeObjectURL(pendingImages.value[index].previewUrl);
+    pendingImages.value.splice(index, 1);
+    form.images = pendingImages.value.map((p) => p.file);
 };
 
 const markMediaForDeletion = (mediaId: number) => {
@@ -176,25 +195,27 @@ const markMediaForDeletion = (mediaId: number) => {
                     <CardTitle>Afbeeldingen</CardTitle>
                 </CardHeader>
                 <CardContent>
-                    <div class="space-y-2">
-                        <Label for="images">Afbeeldingen</Label>
-                        <Input
-                            id="images"
-                            type="file"
-                            multiple
-                            @change="handleFileChange"
-                            accept="image/*"
-                        />
-                        <div
-                            v-if="form.errors.images"
-                            class="text-sm text-destructive"
-                        >
-                            {{ form.errors.images }}
+                    <div class="space-y-4">
+                        <div class="space-y-2">
+                            <Label for="images">Afbeeldingen toevoegen</Label>
+                            <Input
+                                id="images"
+                                type="file"
+                                multiple
+                                @change="handleFileChange"
+                                accept="image/*"
+                            />
+                            <div
+                                v-if="form.errors.images"
+                                class="text-sm text-destructive"
+                            >
+                                {{ form.errors.images }}
+                            </div>
                         </div>
 
                         <div
-                            v-if="existingMedia.length"
-                            class="mt-4 grid grid-cols-2 gap-2"
+                            v-if="existingMedia.length || pendingImages.length"
+                            class="grid grid-cols-2 gap-2"
                         >
                             <div
                                 v-for="media in existingMedia"
@@ -213,6 +234,26 @@ const markMediaForDeletion = (mediaId: number) => {
                                     @click="markMediaForDeletion(media.id)"
                                 >
                                     <Trash2 class="size-4" />
+                                </Button>
+                            </div>
+
+                            <div
+                                v-for="(pending, index) in pendingImages"
+                                :key="pending.previewUrl"
+                                class="group relative aspect-video overflow-hidden rounded-md border border-dashed"
+                            >
+                                <img
+                                    :src="pending.previewUrl"
+                                    class="h-full w-full object-cover"
+                                />
+                                <Button
+                                    type="button"
+                                    variant="secondary"
+                                    size="icon"
+                                    class="absolute top-1 right-1 size-7 opacity-0 transition-opacity group-hover:opacity-100"
+                                    @click="removePendingImage(index)"
+                                >
+                                    <X class="size-4" />
                                 </Button>
                             </div>
                         </div>
