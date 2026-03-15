@@ -79,7 +79,7 @@ function openFileManager(callback: (url: string, meta?: Record<string, string>) 
 function handleFileSelected(files: FileItem[]): void {
     if (filePickerCallback.value && files.length > 0) {
         const file = files[0];
-        filePickerCallback.value(file.url, { title: file.name });
+        filePickerCallback.value(file.url, { title: file.name, alt: file.alt ?? '' });
     }
     filePickerCallback.value = null;
 }

@@ -7,6 +7,7 @@ export interface FileItem {
     size: number;
     is_image: boolean;
     created_at: string;
+    alt?: string;
 }
 
 export interface FileCursorPage {

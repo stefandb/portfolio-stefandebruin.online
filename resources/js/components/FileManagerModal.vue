@@ -26,6 +26,7 @@ import {
     X,
 } from 'lucide-vue-next';
 import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
 import { Skeleton } from '@/components/ui/skeleton';
 import { Separator } from '@/components/ui/separator';
 import type { FileItem, FileCursorPage } from '@/types/files';
@@ -53,6 +54,7 @@ const isDragOver = ref(false);
 const nextCursor = ref<string | null>(null);
 const hasMore = ref(true);
 const expandedUuids = ref<Set<string>>(new Set());
+const altTexts = ref<Record<string, string>>({});
 
 // Refs
 const sentinelRef = ref<HTMLElement | null>(null);
@@ -167,6 +169,7 @@ function isSelected(file: FileItem): boolean {
 function deselectFile(uuid: string): void {
     selectedFiles.value = selectedFiles.value.filter((f) => f.uuid !== uuid);
     expandedUuids.value.delete(uuid);
+    delete altTexts.value[uuid];
 }
 
 function toggleExpanded(uuid: string): void {
@@ -195,7 +198,11 @@ function handleFileInput(e: Event): void {
 }
 
 function confirmSelection(): void {
-    emit('confirm', [...selectedFiles.value]);
+    const filesWithAlt = selectedFiles.value.map((f) => ({
+        ...f,
+        alt: altTexts.value[f.uuid] ?? '',
+    }));
+    emit('confirm', filesWithAlt);
     emit('update:open', false);
 }
 
@@ -220,6 +227,7 @@ watch(
             files.value = [];
             selectedFiles.value = [];
             expandedUuids.value = new Set();
+            altTexts.value = {};
             nextCursor.value = null;
             hasMore.value = true;
             await nextTick();
@@ -532,6 +540,24 @@ function getFileIcon(mimeType: string) {
                                                 :alt="file.name"
                                                 class="w-full rounded-md object-cover"
                                                 style="max-height: 120px"
+                                            />
+                                        </div>
+
+                                        <!-- Alt text (images only) -->
+                                        <div v-if="file.is_image" class="pt-2">
+                                            <label
+                                                :for="`alt-${file.uuid}`"
+                                                class="text-muted-foreground mb-1 block text-xs font-medium"
+                                            >
+                                                Alt text
+                                            </label>
+                                            <Input
+                                                :id="`alt-${file.uuid}`"
+                                                v-model="altTexts[file.uuid]"
+                                                placeholder="Describe the image…"
+                                                class="h-7 text-xs"
+                                                @click.stop
+                                                @keydown.stop
                                             />
                                         </div>
 
