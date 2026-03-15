@@ -1,6 +1,8 @@
 <script setup lang="ts">
 import Editor from '@tinymce/tinymce-vue';
 import { ref, watch } from 'vue';
+import FileManagerModal from '@/components/FileManagerModal.vue';
+import type { FileItem } from '@/types/files';
 
 interface Props {
     modelValue?: string;
@@ -64,6 +66,24 @@ watch(editorValue, (newValue) => {
     emit('update:modelValue', newValue);
 });
 
+// ─── File manager integration ─────────────────────────────────────────────────
+
+const isFileManagerOpen = ref(false);
+const filePickerCallback = ref<((url: string, meta?: Record<string, string>) => void) | null>(null);
+
+function openFileManager(callback: (url: string, meta?: Record<string, string>) => void): void {
+    filePickerCallback.value = callback;
+    isFileManagerOpen.value = true;
+}
+
+function handleFileSelected(files: FileItem[]): void {
+    if (filePickerCallback.value && files.length > 0) {
+        const file = files[0];
+        filePickerCallback.value(file.url, { title: file.name });
+    }
+    filePickerCallback.value = null;
+}
+
 const initOptions = {
     height: props.height,
     menubar: true,
@@ -73,6 +93,12 @@ const initOptions = {
     promotion: false,
     skin: 'oxide',
     content_css: 'default',
+    file_picker_types: 'image media file',
+    file_picker_callback: (
+        callback: (url: string, meta?: Record<string, string>) => void,
+    ) => {
+        openFileManager(callback);
+    },
     ...props.options,
 };
 </script>
@@ -88,6 +114,12 @@ const initOptions = {
             @blur="emit('blur', $event)"
             @focus="emit('focus', $event)"
             @change="emit('change', editorValue)"
+        />
+
+        <FileManagerModal
+            v-model:open="isFileManagerOpen"
+            :multiple="false"
+            @confirm="handleFileSelected"
         />
     </div>
 </template>
