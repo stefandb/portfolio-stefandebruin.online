@@ -2,17 +2,17 @@
 import { useForm } from '@inertiajs/vue3';
 import { Trash2 } from 'lucide-vue-next';
 import { ref, watch } from 'vue';
-import ProjectController from '@/actions/App/Http/Controllers/Admin/ProjectController';
-import ProjectSlugController from '@/actions/App/Http/Controllers/Admin/ProjectSlugController';
+import PostController from '@/actions/App/Http/Controllers/Admin/PostController';
+import PostSlugController from '@/actions/App/Http/Controllers/Admin/PostSlugController';
 import FileManagerModal from '@/components/FileManagerModal.vue';
 import ProjectExcerptInput from '@/components/ProjectExcerptInput.vue';
-import ProjectTagsInput from '@/components/ProjectTagsInput.vue';
 import SlugInput from '@/components/SlugInput.vue';
 import TinyEditor from '@/components/TinyEditor.vue';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
+import type { PostSerie } from '@/types';
 import type { FileItem } from '@/types/files';
 
 const slugify = (text: string) => {
@@ -20,58 +20,50 @@ const slugify = (text: string) => {
         .toString()
         .toLowerCase()
         .trim()
-        .replace(/\s+/g, '-') // Replace spaces with -
-        .replace(/[^\w-]+/g, '') // Remove all non-word chars
-        .replace(/--+/g, '-'); // Replace multiple - with single -
+        .replace(/\s+/g, '-')
+        .replace(/[^\w-]+/g, '')
+        .replace(/--+/g, '-');
 };
 
 interface Props {
-    project?: any;
-    availableTags?: string[];
+    post?: any;
+    availableSeries: Pick<PostSerie, 'id' | 'title'>[];
 }
 
 const props = defineProps<Props>();
 
-const displayImages = ref<FileItem[]>(props.project?.files ?? []);
+const displayImages = ref<FileItem[]>(props.post?.files ?? []);
 
 const form = useForm({
-    title: props.project?.title ?? '',
-    slug: props.project?.slug ?? '',
-    content: props.project?.content ?? '',
-    excerpt: props.project?.excerpt ?? '',
-    tags: props.project?.tags?.map((t: any) => t.name.en) ?? [],
+    title: props.post?.title ?? '',
+    slug: props.post?.slug ?? '',
+    content: props.post?.content ?? '',
+    excerpt: props.post?.excerpt ?? '',
+    status: props.post?.status ?? 'draft',
+    post_serie_id: props.post?.post_serie_id ?? null,
     image_uuids: displayImages.value.map((f) => f.uuid),
-    company: props.project?.company ?? '',
-    role: props.project?.role ?? '',
-    year: props.project?.year ?? new Date().getFullYear(),
-    status: props.project?.status ?? 'draft',
-    github_url: props.project?.github_url ?? '',
-    demo_url: props.project?.demo_url ?? '',
 });
 
-// Auto-slugify title
 watch(
     () => form.title,
     (newTitle) => {
-        if (!props.project) {
+        if (!props.post) {
             form.slug = slugify(newTitle);
         }
     },
 );
 
 const submit = () => {
-    if (props.project) {
-        form.patch(ProjectController.update.url({ project: props.project.id }));
+    if (props.post) {
+        form.patch(PostController.update.url({ post: props.post.id }));
     } else {
-        form.post(ProjectController.store.url(), {
+        form.post(PostController.store.url(), {
             onSuccess: () => form.reset(),
         });
     }
 };
 
-defineExpose({
-    submit,
-});
+defineExpose({ submit });
 
 const fileManagerOpen = ref(false);
 
@@ -92,7 +84,7 @@ const removeImage = (uuid: string) => {
 
 <template>
     <form @submit.prevent="submit" class="space-y-6">
-        <!-- Card 1: title, slug, description (geen CardTitle) -->
+        <!-- Card 1: Titel, slug, beschrijving -->
         <Card>
             <CardContent class="space-y-6 pt-6">
                 <div class="grid grid-cols-1 gap-4 md:grid-cols-2">
@@ -101,7 +93,7 @@ const removeImage = (uuid: string) => {
                         <Input
                             id="title"
                             v-model="form.title"
-                            placeholder="Project Titel"
+                            placeholder="Bericht Titel"
                         />
                         <div
                             v-if="form.errors.title"
@@ -116,15 +108,15 @@ const removeImage = (uuid: string) => {
                         <SlugInput
                             id="slug"
                             v-model="form.slug"
-                            :check-url="ProjectSlugController.check.url()"
-                            :exclude-id="props.project?.id"
+                            :check-url="PostSlugController.check.url()"
+                            :exclude-id="props.post?.id"
                             :error="form.errors.slug"
                         />
                     </div>
                 </div>
 
                 <div class="space-y-2">
-                    <Label>Beschrijving</Label>
+                    <Label>Inhoud</Label>
                     <TinyEditor v-model="form.content" />
                     <div
                         v-if="form.errors.content"
@@ -136,7 +128,7 @@ const removeImage = (uuid: string) => {
             </CardContent>
         </Card>
 
-        <!-- Card 2: Excerpt (wel CardTitle) -->
+        <!-- Card 2: Excerpt -->
         <Card>
             <CardHeader>
                 <CardTitle>Samenvatting (Excerpt)</CardTitle>
@@ -151,21 +143,7 @@ const removeImage = (uuid: string) => {
         </Card>
 
         <div class="grid grid-cols-1 gap-6 md:grid-cols-2">
-            <!-- Card 3: Tags (wel CardTitle) -->
-            <Card>
-                <CardHeader>
-                    <CardTitle>Tags</CardTitle>
-                </CardHeader>
-                <CardContent>
-                    <ProjectTagsInput
-                        v-model="form.tags"
-                        :available-tags="props.availableTags ?? []"
-                        :error="form.errors.tags"
-                    />
-                </CardContent>
-            </Card>
-
-            <!-- Card 4: Images (wel CardTitle) -->
+            <!-- Card 3: Afbeeldingen -->
             <Card>
                 <CardHeader>
                     <CardTitle>Afbeeldingen</CardTitle>
@@ -217,105 +195,57 @@ const removeImage = (uuid: string) => {
                     </div>
                 </CardContent>
             </Card>
+
+            <!-- Card 4: Metadata -->
+            <Card>
+                <CardHeader>
+                    <CardTitle>Metadata</CardTitle>
+                </CardHeader>
+                <CardContent class="space-y-4">
+                    <div class="space-y-2">
+                        <Label for="status">Status</Label>
+                        <select
+                            id="status"
+                            v-model="form.status"
+                            class="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:outline-none disabled:cursor-not-allowed disabled:opacity-50"
+                        >
+                            <option value="draft">Concept</option>
+                            <option value="published">Gepubliceerd</option>
+                        </select>
+                        <div
+                            v-if="form.errors.status"
+                            class="text-sm text-destructive"
+                        >
+                            {{ form.errors.status }}
+                        </div>
+                    </div>
+
+                    <div class="space-y-2">
+                        <Label for="post_serie_id">Serie</Label>
+                        <select
+                            id="post_serie_id"
+                            v-model="form.post_serie_id"
+                            class="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:outline-none disabled:cursor-not-allowed disabled:opacity-50"
+                        >
+                            <option :value="null">Geen serie</option>
+                            <option
+                                v-for="serie in props.availableSeries"
+                                :key="serie.id"
+                                :value="serie.id"
+                            >
+                                {{ serie.title }}
+                            </option>
+                        </select>
+                        <div
+                            v-if="form.errors.post_serie_id"
+                            class="text-sm text-destructive"
+                        >
+                            {{ form.errors.post_serie_id }}
+                        </div>
+                    </div>
+                </CardContent>
+            </Card>
         </div>
-
-        <!-- Card 5: overige meta data velden (wel CardTitle) -->
-        <Card>
-            <CardHeader>
-                <CardTitle>Overige metadata</CardTitle>
-            </CardHeader>
-            <CardContent class="space-y-6">
-                <div class="grid grid-cols-1 gap-4 md:grid-cols-3">
-                    <div class="space-y-2">
-                        <Label for="company">Bedrijf</Label>
-                        <Input
-                            id="company"
-                            v-model="form.company"
-                            placeholder="Bedrijfsnaam"
-                        />
-                        <div
-                            v-if="form.errors.company"
-                            class="text-sm text-destructive"
-                        >
-                            {{ form.errors.company }}
-                        </div>
-                    </div>
-                    <div class="space-y-2">
-                        <Label for="role">Rol</Label>
-                        <Input
-                            id="role"
-                            v-model="form.role"
-                            placeholder="Bijv. Lead Developer"
-                        />
-                        <div
-                            v-if="form.errors.role"
-                            class="text-sm text-destructive"
-                        >
-                            {{ form.errors.role }}
-                        </div>
-                    </div>
-                    <div class="space-y-2">
-                        <Label for="year">Jaar</Label>
-                        <Input id="year" type="number" v-model="form.year" />
-                        <div
-                            v-if="form.errors.year"
-                            class="text-sm text-destructive"
-                        >
-                            {{ form.errors.year }}
-                        </div>
-                    </div>
-                </div>
-
-                <div class="grid grid-cols-1 gap-4 md:grid-cols-2">
-                    <div class="space-y-2">
-                        <Label for="github_url">GitHub URL</Label>
-                        <Input
-                            id="github_url"
-                            v-model="form.github_url"
-                            placeholder="https://github.com/..."
-                        />
-                        <div
-                            v-if="form.errors.github_url"
-                            class="text-sm text-destructive"
-                        >
-                            {{ form.errors.github_url }}
-                        </div>
-                    </div>
-                    <div class="space-y-2">
-                        <Label for="demo_url">Demo URL</Label>
-                        <Input
-                            id="demo_url"
-                            v-model="form.demo_url"
-                            placeholder="https://..."
-                        />
-                        <div
-                            v-if="form.errors.demo_url"
-                            class="text-sm text-destructive"
-                        >
-                            {{ form.errors.demo_url }}
-                        </div>
-                    </div>
-                </div>
-
-                <div class="space-y-2">
-                    <Label for="status">Status</Label>
-                    <select
-                        id="status"
-                        v-model="form.status"
-                        class="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background file:border-0 file:bg-transparent file:text-sm file:font-medium placeholder:text-muted-foreground focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:outline-none disabled:cursor-not-allowed disabled:opacity-50"
-                    >
-                        <option value="draft">Concept</option>
-                        <option value="published">Gepubliceerd</option>
-                    </select>
-                    <div
-                        v-if="form.errors.status"
-                        class="text-sm text-destructive"
-                    >
-                        {{ form.errors.status }}
-                    </div>
-                </div>
-            </CardContent>
-        </Card>
     </form>
 
     <FileManagerModal

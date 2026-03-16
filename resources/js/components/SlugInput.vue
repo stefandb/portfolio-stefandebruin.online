@@ -2,13 +2,13 @@
 import { useDebounceFn } from '@vueuse/core';
 import { CheckCircle2Icon, XCircleIcon } from 'lucide-vue-next';
 import { ref, watch } from 'vue';
-import ProjectSlugController from '@/actions/App/Http/Controllers/Admin/ProjectSlugController';
 import { Input } from '@/components/ui/input';
 import { Spinner } from '@/components/ui/spinner';
 
 interface Props {
     modelValue: string;
-    projectId?: number;
+    checkUrl: string;
+    excludeId?: number;
     error?: string;
 }
 
@@ -32,11 +32,11 @@ const checkSlug = async (slug: string) => {
     try {
         const params = new URLSearchParams({ slug });
 
-        if (props.projectId) {
-            params.set('exclude_id', String(props.projectId));
+        if (props.excludeId) {
+            params.set('exclude_id', String(props.excludeId));
         }
 
-        const response = await fetch(`${ProjectSlugController.check.url()}?${params}`);
+        const response = await fetch(`${props.checkUrl}?${params}`);
         const data = await response.json();
 
         if (data.available) {

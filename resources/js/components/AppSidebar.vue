@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { Link } from '@inertiajs/vue3';
-import { BookOpen, FolderGit2, FolderKanban, LayoutGrid, Tag } from 'lucide-vue-next';
+import { BookOpen, FileText, FolderGit2, FolderKanban, LayoutGrid, Tag } from 'lucide-vue-next';
 import AppLogo from '@/components/AppLogo.vue';
 import NavFooter from '@/components/NavFooter.vue';
 import NavMain from '@/components/NavMain.vue';
@@ -15,6 +15,7 @@ import {
     SidebarMenuItem,
 } from '@/components/ui/sidebar';
 import { dashboard } from '@/routes';
+import { index as postsIndex } from '@/routes/admin/posts';
 import { index as projectsIndex } from '@/routes/admin/projects';
 import { index as tagsIndex } from '@/routes/admin/tags';
 import type { NavItem } from '@/types';
@@ -29,6 +30,11 @@ const mainNavItems: NavItem[] = [
         title: 'Projects',
         href: projectsIndex(),
         icon: FolderKanban,
+    },
+    {
+        title: 'Posts',
+        href: postsIndex(),
+        icon: FileText,
     },
     {
         title: 'Tags',

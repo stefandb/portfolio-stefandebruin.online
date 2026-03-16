@@ -4,7 +4,8 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
-use Illuminate\Database\Eloquent\Relations\HasOne;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\SoftDeletes;
 
 class Post extends Model
@@ -19,7 +20,7 @@ class Post extends Model
         'reading_time',
         'status',
         'published_at',
-        'series_id',
+        'post_serie_id',
     ];
 
     protected function casts(): array
@@ -29,8 +30,13 @@ class Post extends Model
         ];
     }
 
-    public function serie(): HasOne
+    public function serie(): BelongsTo
     {
-        return $this->hasOne(PostSerie::class, 'id', 'series_id');
+        return $this->belongsTo(PostSerie::class, 'post_serie_id');
+    }
+
+    public function files(): BelongsToMany
+    {
+        return $this->belongsToMany(File::class)->withTimestamps();
     }
 }

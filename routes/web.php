@@ -1,6 +1,8 @@
 <?php
 
 use App\Http\Controllers\Admin\FileController;
+use App\Http\Controllers\Admin\PostController;
+use App\Http\Controllers\Admin\PostSlugController;
 use App\Http\Controllers\Admin\ProjectController;
 use App\Http\Controllers\Admin\ProjectSlugController;
 use App\Http\Controllers\Admin\TagController;
@@ -24,6 +26,10 @@ Route::middleware(['auth', 'verified'])->group(function () {
 
         Route::get('projects/slug/check', [ProjectSlugController::class, 'check'])->name('projects.slug.check');
         Route::resource('projects', ProjectController::class);
+
+        Route::get('posts/slug/check', [PostSlugController::class, 'check'])->name('posts.slug.check');
+        Route::resource('posts', PostController::class)->except(['show']);
+
         Route::resource('tags', TagController::class)->except(['show']);
     });
 });

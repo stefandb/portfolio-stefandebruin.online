@@ -13,16 +13,32 @@ class PostFactory extends Factory
     public function definition(): array
     {
         return [
-            'title' => $this->faker->word(),
-            'slug' => $this->faker->word(),
-            'excerpt' => $this->faker->word(),
-            'content' => $this->faker->word(),
-            'reading_time' => $this->faker->randomNumber(),
-            'status' => $this->faker->word(),
-            'published_at' => Carbon::now(),
-            'series_id' => $this->faker->randomNumber(),
+            'title' => $this->faker->sentence(3),
+            'slug' => $this->faker->unique()->slug(),
+            'excerpt' => $this->faker->sentence(),
+            'content' => $this->faker->paragraphs(3, true),
+            'reading_time' => $this->faker->numberBetween(1, 20),
+            'status' => $this->faker->randomElement(['draft', 'published']),
+            'published_at' => null,
+            'post_serie_id' => null,
             'created_at' => Carbon::now(),
             'updated_at' => Carbon::now(),
         ];
+    }
+
+    public function published(): static
+    {
+        return $this->state(fn () => [
+            'status' => 'published',
+            'published_at' => Carbon::now(),
+        ]);
+    }
+
+    public function draft(): static
+    {
+        return $this->state(fn () => [
+            'status' => 'draft',
+            'published_at' => null,
+        ]);
     }
 }
