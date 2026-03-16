@@ -8,7 +8,9 @@
     "mcp": true,
     "nightwatch_mcp": false,
     "packages": [
-        "laravel/fortify"
+        "laravel/fortify",
+        "laravel/ai",
+        "spatie/laravel-medialibrary"
     ],
     "sail": false,
     "skills": [
@@ -16,6 +18,8 @@
         "pest-testing",
         "inertia-vue-development",
         "tailwindcss-development",
-        "developing-with-fortify"
+        "ai-sdk-development",
+        "developing-with-fortify",
+        "medialibrary-development"
     ]
 }
