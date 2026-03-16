@@ -1,6 +1,17 @@
 <script setup lang="ts">
-import { ref, computed, watch, nextTick } from 'vue';
 import { useIntersectionObserver } from '@vueuse/core';
+import {
+    ChevronDown,
+    File,
+    FileText,
+    Image,
+    Loader2,
+    Music,
+    Trash2,
+    Upload,
+    Video,
+    X,
+} from 'lucide-vue-next';
 import {
     DialogClose,
     DialogContent,
@@ -12,23 +23,11 @@ import {
     CollapsibleRoot,
     CollapsibleTrigger,
 } from 'reka-ui';
-import {
-    ChevronDown,
-    ChevronRight,
-    File,
-    FileText,
-    Image,
-    Loader2,
-    Music,
-    Trash2,
-    Upload,
-    Video,
-    X,
-} from 'lucide-vue-next';
+import { ref, watch, nextTick } from 'vue';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
-import { Skeleton } from '@/components/ui/skeleton';
 import { Separator } from '@/components/ui/separator';
+import { Skeleton } from '@/components/ui/skeleton';
 import type { FileItem, FileCursorPage } from '@/types/files';
 
 interface Props {
@@ -60,9 +59,6 @@ const altTexts = ref<Record<string, string>>({});
 const sentinelRef = ref<HTMLElement | null>(null);
 const fileInputRef = ref<HTMLInputElement | null>(null);
 const gridScrollRef = ref<HTMLElement | null>(null);
-
-// Computed
-const lastSelectedFile = computed(() => selectedFiles.value[selectedFiles.value.length - 1] ?? null);
 
 // ─── API helpers ──────────────────────────────────────────────────────────────
 
@@ -213,7 +209,12 @@ function close(): void {
 // ─── Infinite scroll ──────────────────────────────────────────────────────────
 
 useIntersectionObserver(sentinelRef, ([entry]) => {
-    if (entry?.isIntersecting && hasMore.value && !isLoading.value && nextCursor.value) {
+    if (
+        entry?.isIntersecting &&
+        hasMore.value &&
+        !isLoading.value &&
+        nextCursor.value
+    ) {
         loadFiles(nextCursor.value);
     }
 });
@@ -279,15 +280,19 @@ function getFileIcon(mimeType: string) {
     <DialogRoot :open="open" @update:open="emit('update:open', $event)">
         <DialogPortal>
             <DialogOverlay
-                class="data-[state=open]:animate-in data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0 fixed inset-0 z-[10000] bg-black/60"
+                class="fixed inset-0 z-[10000] bg-black/60 data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=open]:animate-in data-[state=open]:fade-in-0"
             />
             <DialogContent
-                class="data-[state=open]:animate-in data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0 data-[state=closed]:zoom-out-95 data-[state=open]:zoom-in-95 bg-background fixed top-1/2 left-1/2 z-[10001] flex h-[88vh] w-[95vw] max-w-7xl -translate-x-1/2 -translate-y-1/2 flex-col overflow-hidden rounded-xl border shadow-2xl duration-200 focus:outline-none"
+                class="fixed top-1/2 left-1/2 z-[10001] flex h-[88vh] w-[95vw] max-w-7xl -translate-x-1/2 -translate-y-1/2 flex-col overflow-hidden rounded-xl border bg-background shadow-2xl duration-200 focus:outline-none data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=closed]:zoom-out-95 data-[state=open]:animate-in data-[state=open]:fade-in-0 data-[state=open]:zoom-in-95"
                 @pointer-down-outside.prevent
             >
                 <!-- Header -->
-                <div class="flex shrink-0 items-center justify-between border-b px-5 py-3.5">
-                    <DialogTitle class="text-base font-semibold">File Manager</DialogTitle>
+                <div
+                    class="flex shrink-0 items-center justify-between border-b px-5 py-3.5"
+                >
+                    <DialogTitle class="text-base font-semibold"
+                        >File Manager</DialogTitle
+                    >
                     <div class="flex items-center gap-2">
                         <!-- Upload button -->
                         <Button
@@ -296,7 +301,10 @@ function getFileIcon(mimeType: string) {
                             :disabled="isUploading"
                             @click="fileInputRef?.click()"
                         >
-                            <Loader2 v-if="isUploading" class="size-4 animate-spin" />
+                            <Loader2
+                                v-if="isUploading"
+                                class="size-4 animate-spin"
+                            />
                             <Upload v-else class="size-4" />
                             {{ isUploading ? 'Uploading…' : 'Upload files' }}
                         </Button>
@@ -308,7 +316,12 @@ function getFileIcon(mimeType: string) {
                             @change="handleFileInput"
                         />
                         <DialogClose as-child>
-                            <Button variant="ghost" size="icon" class="size-8" @click="close">
+                            <Button
+                                variant="ghost"
+                                size="icon"
+                                class="size-8"
+                                @click="close"
+                            >
                                 <X class="size-4" />
                                 <span class="sr-only">Close</span>
                             </Button>
@@ -337,8 +350,10 @@ function getFileIcon(mimeType: string) {
                                 v-if="isDragOver"
                                 class="pointer-events-none absolute inset-0 z-10 flex flex-col items-center justify-center gap-3 rounded-none bg-primary/10 backdrop-blur-sm"
                             >
-                                <Upload class="text-primary size-12" />
-                                <p class="text-primary text-sm font-medium">Drop files to upload</p>
+                                <Upload class="size-12 text-primary" />
+                                <p class="text-sm font-medium text-primary">
+                                    Drop files to upload
+                                </p>
                             </div>
                         </Transition>
 
@@ -347,13 +362,14 @@ function getFileIcon(mimeType: string) {
                             v-if="!isLoading && files.length === 0"
                             class="flex flex-1 flex-col items-center justify-center gap-4 p-10 text-center"
                         >
-                            <div class="bg-muted rounded-full p-5">
-                                <Upload class="text-muted-foreground size-8" />
+                            <div class="rounded-full bg-muted p-5">
+                                <Upload class="size-8 text-muted-foreground" />
                             </div>
                             <div>
                                 <p class="font-medium">No files yet</p>
-                                <p class="text-muted-foreground mt-1 text-sm">
-                                    Drag &amp; drop files here, or click "Upload files"
+                                <p class="mt-1 text-sm text-muted-foreground">
+                                    Drag &amp; drop files here, or click "Upload
+                                    files"
                                 </p>
                             </div>
                         </div>
@@ -364,15 +380,16 @@ function getFileIcon(mimeType: string) {
                             class="grid grid-cols-3 gap-3 p-4 sm:grid-cols-4 md:grid-cols-5 lg:grid-cols-6"
                         >
                             <!-- Upload skeleton while uploading -->
-                            <div
-                                v-if="isUploading"
-                                v-for="n in 3"
-                                :key="`upload-skeleton-${n}`"
-                                class="aspect-square overflow-hidden rounded-lg"
-                            >
-                                <Skeleton class="size-full" />
-                            </div>
 
+                            <div v-if="isUploading">
+                                <div
+                                    v-for="n in 3"
+                                    :key="`upload-skeleton-${n}`"
+                                    class="aspect-square overflow-hidden rounded-lg"
+                                >
+                                    <Skeleton class="size-full" />
+                                </div>
+                            </div>
                             <!-- File items -->
                             <button
                                 v-for="file in files"
@@ -381,7 +398,7 @@ function getFileIcon(mimeType: string) {
                                 class="group relative aspect-square overflow-visible rounded-lg transition-all duration-150 focus:outline-none"
                                 :class="
                                     isSelected(file)
-                                        ? 'scale-105 z-10 ring-2 ring-primary ring-offset-2 ring-offset-background'
+                                        ? 'z-10 scale-105 ring-2 ring-primary ring-offset-2 ring-offset-background'
                                         : 'hover:ring-2 hover:ring-muted-foreground/30 hover:ring-offset-1 hover:ring-offset-background'
                                 "
                                 @click="toggleFile(file)"
@@ -397,13 +414,15 @@ function getFileIcon(mimeType: string) {
                                 <!-- File type icon -->
                                 <div
                                     v-else
-                                    class="bg-muted flex size-full flex-col items-center justify-center gap-2 rounded-lg"
+                                    class="flex size-full flex-col items-center justify-center gap-2 rounded-lg bg-muted"
                                 >
                                     <component
                                         :is="getFileIcon(file.mime_type)"
-                                        class="text-muted-foreground size-8"
+                                        class="size-8 text-muted-foreground"
                                     />
-                                    <span class="text-muted-foreground max-w-full truncate px-1 text-[10px]">
+                                    <span
+                                        class="max-w-full truncate px-1 text-[10px] text-muted-foreground"
+                                    >
                                         {{ file.original_name }}
                                     </span>
                                 </div>
@@ -411,7 +430,7 @@ function getFileIcon(mimeType: string) {
                                 <!-- Selected check badge -->
                                 <span
                                     v-if="isSelected(file)"
-                                    class="bg-primary text-primary-foreground absolute top-1.5 right-1.5 flex size-5 items-center justify-center rounded-full text-[10px] font-bold shadow"
+                                    class="absolute top-1.5 right-1.5 flex size-5 items-center justify-center rounded-full bg-primary text-[10px] font-bold text-primary-foreground shadow"
                                 >
                                     ✓
                                 </span>
@@ -419,7 +438,7 @@ function getFileIcon(mimeType: string) {
                                 <!-- Delete button (hover) -->
                                 <button
                                     type="button"
-                                    class="bg-destructive text-destructive-foreground absolute bottom-1.5 right-1.5 hidden size-6 items-center justify-center rounded-full shadow transition-opacity group-hover:flex"
+                                    class="absolute right-1.5 bottom-1.5 hidden size-6 items-center justify-center rounded-full bg-destructive text-destructive-foreground shadow transition-opacity group-hover:flex"
                                     @click.stop="deleteFile(file.uuid)"
                                 >
                                     <Trash2 class="size-3" />
@@ -458,16 +477,20 @@ function getFileIcon(mimeType: string) {
                     <!-- ── Right: selected files sidebar ── -->
                     <div
                         v-if="selectedFiles.length > 0"
-                        class="border-l flex w-72 shrink-0 flex-col overflow-hidden"
+                        class="flex w-72 shrink-0 flex-col overflow-hidden border-l"
                     >
-                        <div class="flex shrink-0 items-center justify-between px-4 py-3">
+                        <div
+                            class="flex shrink-0 items-center justify-between px-4 py-3"
+                        >
                             <span class="text-sm font-medium">
                                 Selected
-                                <span class="text-muted-foreground">({{ selectedFiles.length }})</span>
+                                <span class="text-muted-foreground"
+                                    >({{ selectedFiles.length }})</span
+                                >
                             </span>
                             <button
                                 type="button"
-                                class="text-muted-foreground hover:text-foreground text-xs transition-colors"
+                                class="text-xs text-muted-foreground transition-colors hover:text-foreground"
                                 @click="selectedFiles = []"
                             >
                                 Clear all
@@ -486,42 +509,58 @@ function getFileIcon(mimeType: string) {
                                 @update:open="toggleExpanded(file.uuid)"
                             >
                                 <CollapsibleTrigger
-                                    class="hover:bg-muted/50 flex w-full items-center gap-2.5 px-3 py-2.5 text-left transition-colors"
+                                    class="flex w-full items-center gap-2.5 px-3 py-2.5 text-left transition-colors hover:bg-muted/50"
                                 >
                                     <!-- Thumbnail -->
-                                    <div class="size-9 shrink-0 overflow-hidden rounded-md">
+                                    <div
+                                        class="size-9 shrink-0 overflow-hidden rounded-md"
+                                    >
                                         <img
                                             v-if="file.is_image"
-                                            :src="file.thumbnail_url ?? file.url"
+                                            :src="
+                                                file.thumbnail_url ?? file.url
+                                            "
                                             :alt="file.name"
                                             class="size-full object-cover"
                                         />
                                         <div
                                             v-else
-                                            class="bg-muted flex size-full items-center justify-center"
+                                            class="flex size-full items-center justify-center bg-muted"
                                         >
                                             <component
-                                                :is="getFileIcon(file.mime_type)"
-                                                class="text-muted-foreground size-4"
+                                                :is="
+                                                    getFileIcon(file.mime_type)
+                                                "
+                                                class="size-4 text-muted-foreground"
                                             />
                                         </div>
                                     </div>
 
                                     <!-- Name -->
-                                    <span class="min-w-0 flex-1 truncate text-xs font-medium">
+                                    <span
+                                        class="min-w-0 flex-1 truncate text-xs font-medium"
+                                    >
                                         {{ file.original_name }}
                                     </span>
 
                                     <!-- Actions -->
-                                    <div class="flex shrink-0 items-center gap-1">
+                                    <div
+                                        class="flex shrink-0 items-center gap-1"
+                                    >
                                         <ChevronDown
-                                            class="text-muted-foreground size-3.5 transition-transform"
-                                            :class="{ 'rotate-180': expandedUuids.has(file.uuid) }"
+                                            class="size-3.5 text-muted-foreground transition-transform"
+                                            :class="{
+                                                'rotate-180': expandedUuids.has(
+                                                    file.uuid,
+                                                ),
+                                            }"
                                         />
                                         <button
                                             type="button"
-                                            class="text-muted-foreground hover:text-foreground ml-0.5 transition-colors"
-                                            @click.stop="deselectFile(file.uuid)"
+                                            class="ml-0.5 text-muted-foreground transition-colors hover:text-foreground"
+                                            @click.stop="
+                                                deselectFile(file.uuid)
+                                            "
                                         >
                                             <X class="size-3.5" />
                                         </button>
@@ -530,13 +569,18 @@ function getFileIcon(mimeType: string) {
 
                                 <!-- Metadata panel -->
                                 <CollapsibleContent
-                                    class="data-[state=open]:animate-in data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0 overflow-hidden transition-all"
+                                    class="overflow-hidden transition-all data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=open]:animate-in data-[state=open]:fade-in-0"
                                 >
-                                    <div class="bg-muted/30 space-y-2 px-3 pb-3">
+                                    <div
+                                        class="space-y-2 bg-muted/30 px-3 pb-3"
+                                    >
                                         <!-- Preview for images -->
                                         <div v-if="file.is_image" class="pt-2">
                                             <img
-                                                :src="file.thumbnail_url ?? file.url"
+                                                :src="
+                                                    file.thumbnail_url ??
+                                                    file.url
+                                                "
                                                 :alt="file.name"
                                                 class="w-full rounded-md object-cover"
                                                 style="max-height: 120px"
@@ -547,7 +591,7 @@ function getFileIcon(mimeType: string) {
                                         <div v-if="file.is_image" class="pt-2">
                                             <label
                                                 :for="`alt-${file.uuid}`"
-                                                class="text-muted-foreground mb-1 block text-xs font-medium"
+                                                class="mb-1 block text-xs font-medium text-muted-foreground"
                                             >
                                                 Alt text
                                             </label>
@@ -564,23 +608,55 @@ function getFileIcon(mimeType: string) {
                                         <!-- Metadata rows -->
                                         <dl class="space-y-1.5 pt-2 text-xs">
                                             <div class="flex flex-col gap-0.5">
-                                                <dt class="text-muted-foreground font-medium">Name</dt>
-                                                <dd class="break-all font-medium">{{ file.original_name }}</dd>
+                                                <dt
+                                                    class="font-medium text-muted-foreground"
+                                                >
+                                                    Name
+                                                </dt>
+                                                <dd
+                                                    class="font-medium break-all"
+                                                >
+                                                    {{ file.original_name }}
+                                                </dd>
                                             </div>
                                             <div class="flex flex-col gap-0.5">
-                                                <dt class="text-muted-foreground font-medium">Type</dt>
+                                                <dt
+                                                    class="font-medium text-muted-foreground"
+                                                >
+                                                    Type
+                                                </dt>
                                                 <dd>{{ file.mime_type }}</dd>
                                             </div>
                                             <div class="flex flex-col gap-0.5">
-                                                <dt class="text-muted-foreground font-medium">Size</dt>
-                                                <dd>{{ formatSize(file.size) }}</dd>
+                                                <dt
+                                                    class="font-medium text-muted-foreground"
+                                                >
+                                                    Size
+                                                </dt>
+                                                <dd>
+                                                    {{ formatSize(file.size) }}
+                                                </dd>
                                             </div>
                                             <div class="flex flex-col gap-0.5">
-                                                <dt class="text-muted-foreground font-medium">Uploaded</dt>
-                                                <dd>{{ formatDate(file.created_at) }}</dd>
+                                                <dt
+                                                    class="font-medium text-muted-foreground"
+                                                >
+                                                    Uploaded
+                                                </dt>
+                                                <dd>
+                                                    {{
+                                                        formatDate(
+                                                            file.created_at,
+                                                        )
+                                                    }}
+                                                </dd>
                                             </div>
                                             <div class="flex flex-col gap-0.5">
-                                                <dt class="text-muted-foreground font-medium">Original</dt>
+                                                <dt
+                                                    class="font-medium text-muted-foreground"
+                                                >
+                                                    Original
+                                                </dt>
                                                 <dd>
                                                     <a
                                                         :href="file.url"
@@ -594,35 +670,91 @@ function getFileIcon(mimeType: string) {
 
                                             <!-- Image variants (images only) -->
                                             <template v-if="file.is_image">
-                                                <div v-if="file.webp_url" class="flex flex-col gap-0.5">
-                                                    <dt class="text-muted-foreground font-medium">WebP</dt>
+                                                <div
+                                                    v-if="file.webp_url"
+                                                    class="flex flex-col gap-0.5"
+                                                >
+                                                    <dt
+                                                        class="font-medium text-muted-foreground"
+                                                    >
+                                                        WebP
+                                                    </dt>
                                                     <dd>
-                                                        <a :href="file.webp_url" target="_blank" class="text-primary underline-offset-2 hover:underline">
-                                                            Open ↗
-                                                        </a>
-                                                    </dd>
-                                                </div>
-                                                <div v-if="file.thumbnail_url" class="flex flex-col gap-0.5">
-                                                    <dt class="text-muted-foreground font-medium">Thumbnail <span class="text-muted-foreground/60">(300×300)</span></dt>
-                                                    <dd>
-                                                        <a :href="file.thumbnail_url" target="_blank" class="text-primary underline-offset-2 hover:underline">
-                                                            Open ↗
-                                                        </a>
-                                                    </dd>
-                                                </div>
-                                                <div v-if="file.og_url" class="flex flex-col gap-0.5">
-                                                    <dt class="text-muted-foreground font-medium">OG image <span class="text-muted-foreground/60">(1200×630)</span></dt>
-                                                    <dd>
-                                                        <a :href="file.og_url" target="_blank" class="text-primary underline-offset-2 hover:underline">
-                                                            Open ↗
-                                                        </a>
-                                                    </dd>
-                                                </div>
-                                                <div v-if="file.responsive_urls" class="flex flex-col gap-0.5">
-                                                    <dt class="text-muted-foreground font-medium">Responsive</dt>
-                                                    <dd class="flex flex-wrap gap-1.5">
                                                         <a
-                                                            v-for="(url, width) in file.responsive_urls"
+                                                            :href="
+                                                                file.webp_url
+                                                            "
+                                                            target="_blank"
+                                                            class="text-primary underline-offset-2 hover:underline"
+                                                        >
+                                                            Open ↗
+                                                        </a>
+                                                    </dd>
+                                                </div>
+                                                <div
+                                                    v-if="file.thumbnail_url"
+                                                    class="flex flex-col gap-0.5"
+                                                >
+                                                    <dt
+                                                        class="font-medium text-muted-foreground"
+                                                    >
+                                                        Thumbnail
+                                                        <span
+                                                            class="text-muted-foreground/60"
+                                                            >(300×300)</span
+                                                        >
+                                                    </dt>
+                                                    <dd>
+                                                        <a
+                                                            :href="
+                                                                file.thumbnail_url
+                                                            "
+                                                            target="_blank"
+                                                            class="text-primary underline-offset-2 hover:underline"
+                                                        >
+                                                            Open ↗
+                                                        </a>
+                                                    </dd>
+                                                </div>
+                                                <div
+                                                    v-if="file.og_url"
+                                                    class="flex flex-col gap-0.5"
+                                                >
+                                                    <dt
+                                                        class="font-medium text-muted-foreground"
+                                                    >
+                                                        OG image
+                                                        <span
+                                                            class="text-muted-foreground/60"
+                                                            >(1200×630)</span
+                                                        >
+                                                    </dt>
+                                                    <dd>
+                                                        <a
+                                                            :href="file.og_url"
+                                                            target="_blank"
+                                                            class="text-primary underline-offset-2 hover:underline"
+                                                        >
+                                                            Open ↗
+                                                        </a>
+                                                    </dd>
+                                                </div>
+                                                <div
+                                                    v-if="file.responsive_urls"
+                                                    class="flex flex-col gap-0.5"
+                                                >
+                                                    <dt
+                                                        class="font-medium text-muted-foreground"
+                                                    >
+                                                        Responsive
+                                                    </dt>
+                                                    <dd
+                                                        class="flex flex-wrap gap-1.5"
+                                                    >
+                                                        <a
+                                                            v-for="(
+                                                                url, width
+                                                            ) in file.responsive_urls"
                                                             :key="width"
                                                             :href="url"
                                                             target="_blank"
@@ -642,22 +774,34 @@ function getFileIcon(mimeType: string) {
                 </div>
 
                 <!-- Footer -->
-                <div class="flex shrink-0 items-center justify-between border-t px-5 py-3">
-                    <p class="text-muted-foreground text-sm">
-                        <template v-if="selectedFiles.length === 0">No files selected</template>
+                <div
+                    class="flex shrink-0 items-center justify-between border-t px-5 py-3"
+                >
+                    <p class="text-sm text-muted-foreground">
+                        <template v-if="selectedFiles.length === 0"
+                            >No files selected</template
+                        >
                         <template v-else>
                             {{ selectedFiles.length }}
-                            {{ selectedFiles.length === 1 ? 'file' : 'files' }} selected
+                            {{ selectedFiles.length === 1 ? 'file' : 'files' }}
+                            selected
                         </template>
                     </p>
                     <div class="flex gap-2">
-                        <Button variant="outline" size="sm" @click="close">Cancel</Button>
+                        <Button variant="outline" size="sm" @click="close"
+                            >Cancel</Button
+                        >
                         <Button
                             size="sm"
                             :disabled="selectedFiles.length === 0"
                             @click="confirmSelection"
                         >
-                            Insert {{ selectedFiles.length > 0 ? `(${selectedFiles.length})` : '' }}
+                            Insert
+                            {{
+                                selectedFiles.length > 0
+                                    ? `(${selectedFiles.length})`
+                                    : ''
+                            }}
                         </Button>
                     </div>
                 </div>

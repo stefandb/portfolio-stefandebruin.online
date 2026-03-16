@@ -1,8 +1,8 @@
 <script setup lang="ts">
 import Breadcrumbs from '@/components/Breadcrumbs.vue';
+import { Button } from '@/components/ui/button';
 import { SidebarTrigger } from '@/components/ui/sidebar';
 import type { BreadcrumbItem } from '@/types';
-import { Button } from '@/components/ui/button';
 
 withDefaults(
     defineProps<{

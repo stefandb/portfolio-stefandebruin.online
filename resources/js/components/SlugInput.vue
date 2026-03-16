@@ -1,7 +1,7 @@
 <script setup lang="ts">
-import { ref, watch } from 'vue';
 import { useDebounceFn } from '@vueuse/core';
 import { CheckCircle2Icon, XCircleIcon } from 'lucide-vue-next';
+import { ref, watch } from 'vue';
 import ProjectSlugController from '@/actions/App/Http/Controllers/Admin/ProjectSlugController';
 import { Input } from '@/components/ui/input';
 import { Spinner } from '@/components/ui/spinner';
