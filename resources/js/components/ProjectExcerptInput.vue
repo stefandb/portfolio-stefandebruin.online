@@ -41,11 +41,10 @@ async function generateExcerpt() {
     if (!props.description) return;
 
     try {
-        const response = await http.post('/ai/excerpt');
+        const response = (await http.post('/ai/excerpt')) as { excerpt: string };
         excerpt.value = response.excerpt;
         editMode.value = true;
     } catch {
-        console.error('fdsfdfdsfdsfds');
         toast.error('Kon geen samenvatting genereren', {
             description: 'Er is een fout opgetreden. Probeer het opnieuw.',
         });
