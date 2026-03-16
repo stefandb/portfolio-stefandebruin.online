@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\Admin;
 
+use App\Actions\ProcessImageVariants;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Admin\StoreFileRequest;
 use App\Http\Resources\FileResource;
@@ -23,7 +24,7 @@ class FileController extends Controller
         return FileResource::collection($files);
     }
 
-    public function store(StoreFileRequest $request): JsonResponse
+    public function store(StoreFileRequest $request, ProcessImageVariants $processor): JsonResponse
     {
         $uploaded = [];
 
@@ -31,7 +32,7 @@ class FileController extends Controller
             $uuid = (string) Str::uuid();
             $path = $file->store("files/{$uuid}", 'public');
 
-            $uploaded[] = File::create([
+            $fileModel = File::create([
                 'uuid' => $uuid,
                 'name' => pathinfo($file->getClientOriginalName(), PATHINFO_FILENAME),
                 'original_name' => $file->getClientOriginalName(),
@@ -40,6 +41,10 @@ class FileController extends Controller
                 'mime_type' => $file->getMimeType() ?? $file->getClientMimeType(),
                 'size' => $file->getSize(),
             ]);
+
+            $processor->handle($fileModel);
+
+            $uploaded[] = $fileModel->fresh();
         }
 
         return response()->json(FileResource::collection($uploaded), 201);
@@ -47,7 +52,16 @@ class FileController extends Controller
 
     public function destroy(File $file): JsonResponse
     {
-        Storage::disk($file->disk)->delete($file->path);
+        $pathsToDelete = array_filter([
+            $file->path,
+            $file->webp_path,
+            $file->thumbnail_path,
+            $file->og_path,
+            ...array_values($file->responsive_paths ?? []),
+        ]);
+
+        Storage::disk($file->disk)->delete($pathsToDelete);
+
         $file->delete();
 
         return response()->json(null, 204);

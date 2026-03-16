@@ -389,7 +389,7 @@ function getFileIcon(mimeType: string) {
                                 <!-- Image thumbnail -->
                                 <img
                                     v-if="file.is_image"
-                                    :src="file.url"
+                                    :src="file.thumbnail_url ?? file.url"
                                     :alt="file.name"
                                     class="size-full rounded-lg object-cover"
                                     loading="lazy"
@@ -492,7 +492,7 @@ function getFileIcon(mimeType: string) {
                                     <div class="size-9 shrink-0 overflow-hidden rounded-md">
                                         <img
                                             v-if="file.is_image"
-                                            :src="file.url"
+                                            :src="file.thumbnail_url ?? file.url"
                                             :alt="file.name"
                                             class="size-full object-cover"
                                         />
@@ -536,7 +536,7 @@ function getFileIcon(mimeType: string) {
                                         <!-- Preview for images -->
                                         <div v-if="file.is_image" class="pt-2">
                                             <img
-                                                :src="file.url"
+                                                :src="file.thumbnail_url ?? file.url"
                                                 :alt="file.name"
                                                 class="w-full rounded-md object-cover"
                                                 style="max-height: 120px"
@@ -580,17 +580,59 @@ function getFileIcon(mimeType: string) {
                                                 <dd>{{ formatDate(file.created_at) }}</dd>
                                             </div>
                                             <div class="flex flex-col gap-0.5">
-                                                <dt class="text-muted-foreground font-medium">URL</dt>
+                                                <dt class="text-muted-foreground font-medium">Original</dt>
                                                 <dd>
                                                     <a
                                                         :href="file.url"
                                                         target="_blank"
-                                                        class="text-primary truncate underline-offset-2 hover:underline"
+                                                        class="text-primary underline-offset-2 hover:underline"
                                                     >
-                                                        Open file ↗
+                                                        Open ↗
                                                     </a>
                                                 </dd>
                                             </div>
+
+                                            <!-- Image variants (images only) -->
+                                            <template v-if="file.is_image">
+                                                <div v-if="file.webp_url" class="flex flex-col gap-0.5">
+                                                    <dt class="text-muted-foreground font-medium">WebP</dt>
+                                                    <dd>
+                                                        <a :href="file.webp_url" target="_blank" class="text-primary underline-offset-2 hover:underline">
+                                                            Open ↗
+                                                        </a>
+                                                    </dd>
+                                                </div>
+                                                <div v-if="file.thumbnail_url" class="flex flex-col gap-0.5">
+                                                    <dt class="text-muted-foreground font-medium">Thumbnail <span class="text-muted-foreground/60">(300×300)</span></dt>
+                                                    <dd>
+                                                        <a :href="file.thumbnail_url" target="_blank" class="text-primary underline-offset-2 hover:underline">
+                                                            Open ↗
+                                                        </a>
+                                                    </dd>
+                                                </div>
+                                                <div v-if="file.og_url" class="flex flex-col gap-0.5">
+                                                    <dt class="text-muted-foreground font-medium">OG image <span class="text-muted-foreground/60">(1200×630)</span></dt>
+                                                    <dd>
+                                                        <a :href="file.og_url" target="_blank" class="text-primary underline-offset-2 hover:underline">
+                                                            Open ↗
+                                                        </a>
+                                                    </dd>
+                                                </div>
+                                                <div v-if="file.responsive_urls" class="flex flex-col gap-0.5">
+                                                    <dt class="text-muted-foreground font-medium">Responsive</dt>
+                                                    <dd class="flex flex-wrap gap-1.5">
+                                                        <a
+                                                            v-for="(url, width) in file.responsive_urls"
+                                                            :key="width"
+                                                            :href="url"
+                                                            target="_blank"
+                                                            class="text-primary underline-offset-2 hover:underline"
+                                                        >
+                                                            {{ width }}w ↗
+                                                        </a>
+                                                    </dd>
+                                                </div>
+                                            </template>
                                         </dl>
                                     </div>
                                 </CollapsibleContent>

@@ -18,7 +18,18 @@ class File extends Model
         'disk',
         'mime_type',
         'size',
+        'webp_path',
+        'thumbnail_path',
+        'og_path',
+        'responsive_paths',
     ];
+
+    protected function casts(): array
+    {
+        return [
+            'responsive_paths' => 'array',
+        ];
+    }
 
     public function getRouteKeyName(): string
     {
@@ -33,5 +44,41 @@ class File extends Model
     public function isImage(): bool
     {
         return str_starts_with($this->mime_type, 'image/');
+    }
+
+    private function variantUrl(?string $variantPath): ?string
+    {
+        if (! $variantPath) {
+            return null;
+        }
+
+        return Storage::disk($this->disk)->url($variantPath);
+    }
+
+    public function getWebpUrlAttribute(): ?string
+    {
+        return $this->variantUrl($this->webp_path);
+    }
+
+    public function getThumbnailUrlAttribute(): ?string
+    {
+        return $this->variantUrl($this->thumbnail_path);
+    }
+
+    public function getOgUrlAttribute(): ?string
+    {
+        return $this->variantUrl($this->og_path);
+    }
+
+    /** @return array<int, string>|null */
+    public function getResponsiveUrlsAttribute(): ?array
+    {
+        if (! $this->responsive_paths) {
+            return null;
+        }
+
+        return collect($this->responsive_paths)
+            ->map(fn (string $path) => Storage::disk($this->disk)->url($path))
+            ->all();
     }
 }

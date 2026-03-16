@@ -3,6 +3,10 @@ export interface FileItem {
     name: string;
     original_name: string;
     url: string;
+    webp_url: string | null;
+    thumbnail_url: string | null;
+    og_url: string | null;
+    responsive_urls: Record<number, string> | null;
     mime_type: string;
     size: number;
     is_image: boolean;
