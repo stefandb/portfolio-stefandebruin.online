@@ -1,8 +1,9 @@
 <script setup lang="ts">
 import { useForm } from '@inertiajs/vue3';
-import { Trash2, X } from 'lucide-vue-next';
+import { Trash2 } from 'lucide-vue-next';
 import { ref, watch } from 'vue';
 import ProjectController from '@/actions/App/Http/Controllers/Admin/ProjectController';
+import FileManagerModal from '@/components/FileManagerModal.vue';
 import ProjectExcerptInput from '@/components/ProjectExcerptInput.vue';
 import ProjectTagsInput from '@/components/ProjectTagsInput.vue';
 import SlugInput from '@/components/SlugInput.vue';
@@ -11,6 +12,7 @@ import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
+import type { FileItem } from '@/types/files';
 
 const slugify = (text: string) => {
     return text
@@ -29,14 +31,15 @@ interface Props {
 
 const props = defineProps<Props>();
 
+const displayImages = ref<FileItem[]>(props.project?.files ?? []);
+
 const form = useForm({
     title: props.project?.title ?? '',
     slug: props.project?.slug ?? '',
     content: props.project?.content ?? '',
     excerpt: props.project?.excerpt ?? '',
     tags: props.project?.tags?.map((t: any) => t.name.en) ?? [],
-    images: [] as File[],
-    deleted_media: [] as number[],
+    image_uuids: displayImages.value.map((f) => f.uuid),
     company: props.project?.company ?? '',
     role: props.project?.role ?? '',
     year: props.project?.year ?? new Date().getFullYear(),
@@ -57,17 +60,10 @@ watch(
 
 const submit = () => {
     if (props.project) {
-        form.patch(
-            ProjectController.update.url({ project: props.project.id }),
-            {
-                onSuccess: () => form.reset('images'),
-                forceFormData: true,
-            },
-        );
+        form.patch(ProjectController.update.url({ project: props.project.id }));
     } else {
         form.post(ProjectController.store.url(), {
             onSuccess: () => form.reset(),
-            forceFormData: true,
         });
     }
 };
@@ -76,42 +72,20 @@ defineExpose({
     submit,
 });
 
-interface MediaItem {
-    id: number;
-    original_url: string;
-}
+const fileManagerOpen = ref(false);
 
-const existingMedia = ref<MediaItem[]>(props.project?.media ?? []);
-
-interface PendingImage {
-    file: File;
-    previewUrl: string;
-}
-
-const pendingImages = ref<PendingImage[]>([]);
-
-const handleFileChange = (event: Event) => {
-    const target = event.target as HTMLInputElement;
-    if (target.files) {
-        const newPreviews = Array.from(target.files).map((file) => ({
-            file,
-            previewUrl: URL.createObjectURL(file),
-        }));
-        pendingImages.value.push(...newPreviews);
-        form.images = pendingImages.value.map((p) => p.file);
-        target.value = '';
+const handleFilesConfirmed = (files: FileItem[]) => {
+    for (const file of files) {
+        if (!displayImages.value.some((f) => f.uuid === file.uuid)) {
+            displayImages.value.push(file);
+        }
     }
+    form.image_uuids = displayImages.value.map((f) => f.uuid);
 };
 
-const removePendingImage = (index: number) => {
-    URL.revokeObjectURL(pendingImages.value[index].previewUrl);
-    pendingImages.value.splice(index, 1);
-    form.images = pendingImages.value.map((p) => p.file);
-};
-
-const markMediaForDeletion = (mediaId: number) => {
-    form.deleted_media.push(mediaId);
-    existingMedia.value = existingMedia.value.filter((m) => m.id !== mediaId);
+const removeImage = (uuid: string) => {
+    displayImages.value = displayImages.value.filter((f) => f.uuid !== uuid);
+    form.image_uuids = displayImages.value.map((f) => f.uuid);
 };
 </script>
 
@@ -197,33 +171,34 @@ const markMediaForDeletion = (mediaId: number) => {
                 <CardContent>
                     <div class="space-y-4">
                         <div class="space-y-2">
-                            <Label for="images">Afbeeldingen toevoegen</Label>
-                            <Input
-                                id="images"
-                                type="file"
-                                multiple
-                                @change="handleFileChange"
-                                accept="image/*"
-                            />
+                            <Label>Afbeeldingen toevoegen</Label>
+                            <Button
+                                type="button"
+                                variant="outline"
+                                class="w-full"
+                                @click="fileManagerOpen = true"
+                            >
+                                Bestandsbeheer openen
+                            </Button>
                             <div
-                                v-if="form.errors.images"
+                                v-if="form.errors.image_uuids"
                                 class="text-sm text-destructive"
                             >
-                                {{ form.errors.images }}
+                                {{ form.errors.image_uuids }}
                             </div>
                         </div>
 
                         <div
-                            v-if="existingMedia.length || pendingImages.length"
+                            v-if="displayImages.length"
                             class="grid grid-cols-2 gap-2"
                         >
                             <div
-                                v-for="media in existingMedia"
-                                :key="media.id"
+                                v-for="image in displayImages"
+                                :key="image.uuid"
                                 class="group relative aspect-video overflow-hidden rounded-md border"
                             >
                                 <img
-                                    :src="media.original_url"
+                                    :src="image.thumbnail_url ?? image.url"
                                     class="h-full w-full object-cover"
                                 />
                                 <Button
@@ -231,29 +206,9 @@ const markMediaForDeletion = (mediaId: number) => {
                                     variant="destructive"
                                     size="icon"
                                     class="absolute top-1 right-1 size-7 opacity-0 transition-opacity group-hover:opacity-100"
-                                    @click="markMediaForDeletion(media.id)"
+                                    @click="removeImage(image.uuid)"
                                 >
                                     <Trash2 class="size-4" />
-                                </Button>
-                            </div>
-
-                            <div
-                                v-for="(pending, index) in pendingImages"
-                                :key="pending.previewUrl"
-                                class="group relative aspect-video overflow-hidden rounded-md border border-dashed"
-                            >
-                                <img
-                                    :src="pending.previewUrl"
-                                    class="h-full w-full object-cover"
-                                />
-                                <Button
-                                    type="button"
-                                    variant="secondary"
-                                    size="icon"
-                                    class="absolute top-1 right-1 size-7 opacity-0 transition-opacity group-hover:opacity-100"
-                                    @click="removePendingImage(index)"
-                                >
-                                    <X class="size-4" />
                                 </Button>
                             </div>
                         </div>
@@ -360,4 +315,10 @@ const markMediaForDeletion = (mediaId: number) => {
             </CardContent>
         </Card>
     </form>
+
+    <FileManagerModal
+        v-model:open="fileManagerOpen"
+        multiple
+        @confirm="handleFilesConfirmed"
+    />
 </template>

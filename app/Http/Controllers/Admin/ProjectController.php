@@ -5,12 +5,12 @@ namespace App\Http\Controllers\Admin;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Admin\StoreProjectRequest;
 use App\Http\Requests\Admin\UpdateProjectRequest;
+use App\Models\File;
 use App\Models\Project;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Inertia\Inertia;
 use Inertia\Response;
-use Spatie\MediaLibrary\MediaCollections\Models\Media;
 use Spatie\Tags\Tag;
 
 class ProjectController extends Controller
@@ -61,10 +61,9 @@ class ProjectController extends Controller
             $project->attachTags($request->tags);
         }
 
-        if ($request->hasFile('images')) {
-            foreach ($request->file('images') as $image) {
-                $project->addMedia($image)->toMediaCollection('images');
-            }
+        if ($request->filled('image_uuids')) {
+            $fileIds = File::query()->whereIn('uuid', $request->image_uuids)->pluck('id');
+            $project->files()->sync($fileIds);
         }
 
         return redirect()->route('admin.projects.index')->with('success', 'Project succesvol aangemaakt.');
@@ -76,7 +75,7 @@ class ProjectController extends Controller
     public function show(Project $project): Response
     {
         return Inertia::render('Admin/Projects/Show', [
-            'project' => $project->load(['tags', 'media']),
+            'project' => $project->load(['tags', 'files']),
         ]);
     }
 
@@ -86,7 +85,7 @@ class ProjectController extends Controller
     public function edit(Project $project): Response
     {
         return Inertia::render('Admin/Projects/Edit', [
-            'project' => $project->load(['tags', 'media']),
+            'project' => $project->load(['tags', 'files']),
             'availableTags' => Tag::query()->orderBy('name->en')->get()->pluck('name')->filter()->values()->toArray(),
         ]);
     }
@@ -102,19 +101,8 @@ class ProjectController extends Controller
             $project->syncTags($request->tags);
         }
 
-        if ($request->filled('deleted_media')) {
-            Media::query()
-                ->where('model_type', Project::class)
-                ->where('model_id', $project->id)
-                ->whereIn('id', $request->deleted_media)
-                ->each(fn (Media $media) => $media->delete());
-        }
-
-        if ($request->hasFile('images')) {
-            foreach ($request->file('images') as $image) {
-                $project->addMedia($image)->toMediaCollection('images');
-            }
-        }
+        $fileIds = File::query()->whereIn('uuid', $request->image_uuids ?? [])->pluck('id');
+        $project->files()->sync($fileIds);
 
         return redirect()->route('admin.projects.index')->with('success', 'Project succesvol bijgewerkt.');
     }

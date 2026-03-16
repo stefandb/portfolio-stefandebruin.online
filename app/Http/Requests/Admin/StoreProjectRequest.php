@@ -27,8 +27,8 @@ class StoreProjectRequest extends FormRequest
             'excerpt' => ['nullable', 'string', 'max:200'],
             'content' => ['nullable', 'string'],
             'tags' => ['nullable', 'array'],
-            'images' => ['nullable', 'array'],
-            'images.*' => ['image', 'max:10240'], // 10MB limit
+            'image_uuids' => ['nullable', 'array'],
+            'image_uuids.*' => ['string', 'exists:files,uuid'],
             'company' => ['nullable', 'string', 'max:255'],
             'role' => ['nullable', 'string', 'max:255'],
             'year' => ['nullable', 'integer'],

@@ -10,6 +10,8 @@ class File extends Model
 {
     use HasFactory;
 
+    protected $appends = ['url', 'webp_url', 'thumbnail_url', 'og_url', 'responsive_urls', 'is_image'];
+
     protected $fillable = [
         'uuid',
         'name',
@@ -44,6 +46,11 @@ class File extends Model
     public function isImage(): bool
     {
         return str_starts_with($this->mime_type, 'image/');
+    }
+
+    public function getIsImageAttribute(): bool
+    {
+        return $this->isImage();
     }
 
     private function variantUrl(?string $variantPath): ?string
