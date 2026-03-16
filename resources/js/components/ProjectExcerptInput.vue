@@ -1,15 +1,15 @@
 <script setup lang="ts">
 import { useHttp } from '@inertiajs/vue3';
-import { Wand2, RefreshCcw } from 'lucide-vue-next';
 import { ref, watch, nextTick, computed } from 'vue';
+import { toast } from 'vue-sonner';
 import { Button } from '@/components/ui/button';
 import { Textarea } from '@/components/ui/textarea';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 
 interface Props {
     modelValue: string;
     description: string;
     maxLength?: number;
+    error?: string;
 }
 
 const props = withDefaults(defineProps<Props>(), {
@@ -22,9 +22,7 @@ const emit = defineEmits<{
 
 const editMode = ref(false);
 const excerpt = ref(props.modelValue ?? '');
-const http = useHttp({
-    text: '',
-});
+const http = useHttp({ text: props.description });
 
 const textareaRef = ref<HTMLTextAreaElement | null>(null);
 
@@ -42,12 +40,16 @@ watch(editMode, async (val) => {
 async function generateExcerpt() {
     if (!props.description) return;
 
-    const response = await http.post('/ai/excerpt', {
-        text: props.description,
-    });
-
-    excerpt.value = response.excerpt;
-    editMode.value = true;
+    try {
+        const response = await http.post('/ai/excerpt');
+        excerpt.value = response.excerpt;
+        editMode.value = true;
+    } catch {
+        console.error('fdsfdfdsfdsfds');
+        toast.error('Kon geen samenvatting genereren', {
+            description: 'Er is een fout opgetreden. Probeer het opnieuw.',
+        });
+    }
 }
 
 function startEditing() {
@@ -63,7 +65,7 @@ const aiLabel = computed(() =>
     <!-- preview mode -->
     <div
         v-if="!editMode"
-        class="border-input border cursor-text rounded-md p-3 text-sm"
+        class="cursor-text rounded-md border border-input p-3 text-sm"
         @click="startEditing"
     >
         <span v-if="!excerpt" class="text-muted-foreground italic">
@@ -87,7 +89,7 @@ const aiLabel = computed(() =>
         <div
             class="flex items-center justify-between text-xs text-muted-foreground"
         >
-            <span> {{ excerpt.length }} / {{ maxLength }} </span>
+            <span>{{ excerpt.length }} / {{ maxLength }}</span>
 
             <Button
                 type="button"

@@ -4,6 +4,7 @@ use App\Http\Controllers\Admin\FileController;
 use App\Http\Controllers\Admin\ProjectController;
 use App\Http\Controllers\Admin\ProjectSlugController;
 use App\Http\Controllers\Admin\TagController;
+use App\Http\Controllers\Ai\ExcerptController;
 use Illuminate\Support\Facades\Route;
 use Laravel\Fortify\Features;
 
@@ -13,6 +14,8 @@ Route::inertia('/', 'Welcome', [
 
 Route::middleware(['auth', 'verified'])->group(function () {
     Route::inertia('dashboard', 'Dashboard')->name('dashboard');
+
+    Route::post('ai/excerpt', ExcerptController::class)->name('ai.excerpt');
 
     Route::prefix('admin')->as('admin.')->group(function () {
         Route::get('files', [FileController::class, 'index'])->name('files.index');
