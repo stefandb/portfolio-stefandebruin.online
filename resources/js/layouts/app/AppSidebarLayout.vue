@@ -16,11 +16,12 @@ withDefaults(defineProps<Props>(), {
     breadcrumbs: () => [],
 });
 
-const layout = useLayoutProps({
-    primaryButton: {
-        label: '',
-        onClick: () => {},
-    },
+const layout = useLayoutProps<{
+    primaryButton?: { label: string; onClick: () => void };
+    publishButtons?: { currentStatus: string | null; onPublish: () => void; onSaveDraft: () => void };
+}>({
+    primaryButton: undefined,
+    publishButtons: undefined,
 });
 </script>
 

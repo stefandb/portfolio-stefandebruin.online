@@ -3,14 +3,20 @@ import Breadcrumbs from '@/components/Breadcrumbs.vue';
 import { Button } from '@/components/ui/button';
 import { SidebarTrigger } from '@/components/ui/sidebar';
 import type { BreadcrumbItem } from '@/types';
+import { computed } from 'vue';
 
-withDefaults(
+const props = withDefaults(
     defineProps<{
         breadcrumbs?: BreadcrumbItem[];
         layoutProps: {
-            primaryButton: {
+            primaryButton?: {
                 label: string;
                 onClick: () => void;
+            };
+            publishButtons?: {
+                currentStatus: string | null;
+                onPublish: () => void;
+                onSaveDraft: () => void;
             };
         };
     }>(),
@@ -18,6 +24,28 @@ withDefaults(
         breadcrumbs: () => [],
     },
 );
+
+const statusLabel = computed(() => {
+    switch (props.layoutProps.publishButtons?.currentStatus) {
+        case 'published':
+            return 'Gepubliceerd';
+        case 'draft':
+            return 'Concept';
+        default:
+            return null;
+    }
+});
+
+const statusClass = computed(() => {
+    switch (props.layoutProps.publishButtons?.currentStatus) {
+        case 'published':
+            return 'text-emerald-600 dark:text-emerald-400';
+        case 'draft':
+            return 'text-amber-600 dark:text-amber-400';
+        default:
+            return 'text-muted-foreground';
+    }
+});
 </script>
 
 <template>
@@ -32,11 +60,33 @@ withDefaults(
                 </template>
 
                 <Button
-                    v-if="layoutProps.primaryButton.label"
-                    @click="layoutProps.primaryButton.onClick()"
+                    v-if="layoutProps.primaryButton?.label"
+                    @click="layoutProps.primaryButton!.onClick()"
                 >
                     {{ layoutProps.primaryButton.label }}
                 </Button>
+
+                <div
+                    v-else-if="layoutProps.publishButtons"
+                    class="flex items-center gap-3"
+                >
+                    <span
+                        v-if="statusLabel"
+                        class="text-sm font-medium"
+                        :class="statusClass"
+                    >
+                        {{ statusLabel }}
+                    </span>
+                    <Button
+                        variant="outline"
+                        @click="layoutProps.publishButtons.onSaveDraft()"
+                    >
+                        Concept opslaan
+                    </Button>
+                    <Button @click="layoutProps.publishButtons.onPublish()">
+                        Publiceren
+                    </Button>
+                </div>
             </div>
         </div>
     </header>

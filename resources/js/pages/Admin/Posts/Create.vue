@@ -20,9 +20,10 @@ const breadcrumbs: BreadcrumbItem[] = [
 ];
 
 setLayoutProps({
-    primaryButton: {
-        label: 'Bericht Opslaan',
-        onClick: () => postForm.value?.submit(),
+    publishButtons: {
+        currentStatus: null,
+        onPublish: () => postForm.value?.submit('published'),
+        onSaveDraft: () => postForm.value?.submit('draft'),
     },
 });
 </script>

@@ -45,6 +45,7 @@ const form = useForm({
     role: props.project?.role ?? '',
     year: props.project?.year ?? new Date().getFullYear(),
     status: props.project?.status ?? 'draft',
+    published_at: props.project?.published_at ?? null,
     github_url: props.project?.github_url ?? '',
     demo_url: props.project?.demo_url ?? '',
 });
@@ -59,7 +60,15 @@ watch(
     },
 );
 
-const submit = () => {
+const submit = (status: 'draft' | 'published') => {
+    form.status = status;
+
+    if (status === 'published') {
+        form.published_at = form.published_at ?? new Date().toISOString();
+    } else {
+        form.published_at = null;
+    }
+
     if (props.project) {
         form.patch(ProjectController.update.url({ project: props.project.id }));
     } else {
@@ -294,24 +303,6 @@ const removeImage = (uuid: string) => {
                         >
                             {{ form.errors.demo_url }}
                         </div>
-                    </div>
-                </div>
-
-                <div class="space-y-2">
-                    <Label for="status">Status</Label>
-                    <select
-                        id="status"
-                        v-model="form.status"
-                        class="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background file:border-0 file:bg-transparent file:text-sm file:font-medium placeholder:text-muted-foreground focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:outline-none disabled:cursor-not-allowed disabled:opacity-50"
-                    >
-                        <option value="draft">Concept</option>
-                        <option value="published">Gepubliceerd</option>
-                    </select>
-                    <div
-                        v-if="form.errors.status"
-                        class="text-sm text-destructive"
-                    >
-                        {{ form.errors.status }}
                     </div>
                 </div>
             </CardContent>

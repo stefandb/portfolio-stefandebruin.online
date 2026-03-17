@@ -40,6 +40,7 @@ const form = useForm({
     content: props.post?.content ?? '',
     excerpt: props.post?.excerpt ?? '',
     status: props.post?.status ?? 'draft',
+    published_at: props.post?.published_at ?? null,
     post_serie_id: props.post?.post_serie_id ?? null,
     image_uuids: displayImages.value.map((f) => f.uuid),
 });
@@ -53,7 +54,15 @@ watch(
     },
 );
 
-const submit = () => {
+const submit = (status: 'draft' | 'published') => {
+    form.status = status;
+
+    if (status === 'published') {
+        form.published_at = form.published_at ?? new Date().toISOString();
+    } else {
+        form.published_at = null;
+    }
+
     if (props.post) {
         form.patch(PostController.update.url({ post: props.post.id }));
     } else {
@@ -202,24 +211,6 @@ const removeImage = (uuid: string) => {
                     <CardTitle>Metadata</CardTitle>
                 </CardHeader>
                 <CardContent class="space-y-4">
-                    <div class="space-y-2">
-                        <Label for="status">Status</Label>
-                        <select
-                            id="status"
-                            v-model="form.status"
-                            class="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:outline-none disabled:cursor-not-allowed disabled:opacity-50"
-                        >
-                            <option value="draft">Concept</option>
-                            <option value="published">Gepubliceerd</option>
-                        </select>
-                        <div
-                            v-if="form.errors.status"
-                            class="text-sm text-destructive"
-                        >
-                            {{ form.errors.status }}
-                        </div>
-                    </div>
-
                     <div class="space-y-2">
                         <Label for="post_serie_id">Serie</Label>
                         <select
