@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { Head, setLayoutProps } from '@inertiajs/vue3';
 import { ref } from 'vue';
-
+import ProjectController from '@/actions/App/Http/Controllers/Admin/ProjectController';
 import AppLayout from '@/layouts/AppLayout.vue';
 import type { BreadcrumbItem } from '@/types';
 import ProjectForm from './ProjectForm.vue';
@@ -18,11 +18,11 @@ const props = defineProps<Props>();
 const breadcrumbs: BreadcrumbItem[] = [
     {
         title: 'Projecten',
-        href: '/admin/projects',
+        href: ProjectController.index.url(),
     },
     {
         title: props.project.title,
-        href: `/admin/projects/${props.project.id}/edit`,
+        href: ProjectController.edit.url({ project: props.project.id }),
     },
 ];
 

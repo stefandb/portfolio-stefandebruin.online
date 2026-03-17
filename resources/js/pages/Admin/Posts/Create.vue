@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import { Head, setLayoutProps } from '@inertiajs/vue3';
 import { ref } from 'vue';
+import PostController from '@/actions/App/Http/Controllers/Admin/PostController';
 import AppLayout from '@/layouts/AppLayout.vue';
 import type { BreadcrumbItem, PostSerie } from '@/types';
 import PostForm from './PostForm.vue';
@@ -14,8 +15,8 @@ interface Props {
 const props = defineProps<Props>();
 
 const breadcrumbs: BreadcrumbItem[] = [
-    { title: 'Berichten', href: '/admin/posts' },
-    { title: 'Bericht Toevoegen', href: '/admin/posts/create' },
+    { title: 'Berichten', href: PostController.index.url() },
+    { title: 'Bericht Toevoegen', href: PostController.create.url() },
 ];
 
 setLayoutProps({
