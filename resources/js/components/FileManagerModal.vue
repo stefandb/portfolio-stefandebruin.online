@@ -232,7 +232,7 @@ watch(
             nextCursor.value = null;
             hasMore.value = true;
             await nextTick();
-            loadFiles();
+            await loadFiles();
         }
     },
 );
@@ -280,10 +280,10 @@ function getFileIcon(mimeType: string) {
     <DialogRoot :open="open" @update:open="emit('update:open', $event)">
         <DialogPortal>
             <DialogOverlay
-                class="fixed inset-0 z-[10000] bg-black/60 data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=open]:animate-in data-[state=open]:fade-in-0"
+                class="fixed inset-0 z-10000 bg-black/60 data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=open]:animate-in data-[state=open]:fade-in-0"
             />
             <DialogContent
-                class="fixed top-1/2 left-1/2 z-[10001] flex h-[88vh] w-[95vw] max-w-7xl -translate-x-1/2 -translate-y-1/2 flex-col overflow-hidden rounded-xl border bg-background shadow-2xl duration-200 focus:outline-none data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=closed]:zoom-out-95 data-[state=open]:animate-in data-[state=open]:fade-in-0 data-[state=open]:zoom-in-95"
+                class="fixed top-1/2 left-1/2 z-10001 flex h-[88vh] w-[95vw] max-w-7xl -translate-x-1/2 -translate-y-1/2 flex-col overflow-hidden rounded-xl border bg-background shadow-2xl duration-200 focus:outline-none data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=closed]:zoom-out-95 data-[state=open]:animate-in data-[state=open]:fade-in-0 data-[state=open]:zoom-in-95"
                 @pointer-down-outside.prevent
             >
                 <!-- Header -->
@@ -391,7 +391,7 @@ function getFileIcon(mimeType: string) {
                                 </div>
                             </div>
                             <!-- File items -->
-                            <button
+                            <div
                                 v-for="file in files"
                                 :key="file.uuid"
                                 type="button"
@@ -443,7 +443,7 @@ function getFileIcon(mimeType: string) {
                                 >
                                     <Trash2 class="size-3" />
                                 </button>
-                            </button>
+                            </div>
 
                             <!-- Initial loading skeletons -->
                             <template v-if="isLoading && files.length === 0">
