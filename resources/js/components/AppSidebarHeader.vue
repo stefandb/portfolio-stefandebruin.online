@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import Breadcrumbs from '@/components/Breadcrumbs.vue';
+import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { SidebarTrigger } from '@/components/ui/sidebar';
 import type { BreadcrumbItem } from '@/types';
@@ -36,15 +37,8 @@ const statusLabel = computed(() => {
     }
 });
 
-const statusClass = computed(() => {
-    switch (props.layoutProps.publishButtons?.currentStatus) {
-        case 'published':
-            return 'text-emerald-600 dark:text-emerald-400';
-        case 'draft':
-            return 'text-amber-600 dark:text-amber-400';
-        default:
-            return 'text-muted-foreground';
-    }
+const statusVariant = computed(() => {
+    return props.layoutProps.publishButtons?.currentStatus === 'published' ? 'default' : 'secondary';
 });
 </script>
 
@@ -70,13 +64,12 @@ const statusClass = computed(() => {
                     v-else-if="layoutProps.publishButtons"
                     class="flex items-center gap-3"
                 >
-                    <span
+                    <Badge
                         v-if="statusLabel"
-                        class="text-sm font-medium"
-                        :class="statusClass"
+                        :variant="statusVariant"
                     >
                         {{ statusLabel }}
-                    </span>
+                    </Badge>
                     <Button
                         variant="outline"
                         @click="layoutProps.publishButtons.onSaveDraft()"
