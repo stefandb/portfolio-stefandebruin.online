@@ -13,6 +13,7 @@ use Illuminate\Database\Eloquent\SoftDeletes;
 #[ObservedBy(PostObserver::class)]
 class Post extends Model
 {
+    /** @use HasFactory<\Database\Factories\PostFactory> */
     use HasFactory, SoftDeletes;
 
     protected $fillable = [
@@ -33,11 +34,17 @@ class Post extends Model
         ];
     }
 
+    /**
+     * @return BelongsTo<PostSerie, $this>
+     */
     public function serie(): BelongsTo
     {
         return $this->belongsTo(PostSerie::class, 'post_serie_id');
     }
 
+    /**
+     * @return BelongsToMany<File, $this>
+     */
     public function files(): BelongsToMany
     {
         return $this->belongsToMany(File::class)->withTimestamps();

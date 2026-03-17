@@ -6,6 +6,9 @@ use App\Models\PostSerie;
 use Illuminate\Database\Eloquent\Factories\Factory;
 use Illuminate\Support\Carbon;
 
+/**
+ * @extends \Illuminate\Database\Eloquent\Factories\Factory<\App\Models\PostSerie>
+ */
 class PostSerieFactory extends Factory
 {
     protected $model = PostSerie::class;

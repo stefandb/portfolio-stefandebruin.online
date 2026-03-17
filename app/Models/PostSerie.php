@@ -9,6 +9,7 @@ use Illuminate\Database\Eloquent\SoftDeletes;
 
 class PostSerie extends Model
 {
+    /** @use HasFactory<\Database\Factories\PostSerieFactory> */
     use HasFactory, SoftDeletes;
 
     protected $fillable = [
@@ -17,6 +18,9 @@ class PostSerie extends Model
         'description',
     ];
 
+    /**
+     * @return HasMany<Post, $this>
+     */
     public function posts(): HasMany
     {
         return $this->hasMany(Post::class, 'serie_id', 'id');

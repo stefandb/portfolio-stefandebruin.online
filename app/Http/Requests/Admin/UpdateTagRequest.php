@@ -17,6 +17,7 @@ class UpdateTagRequest extends FormRequest
      */
     public function rules(): array
     {
+        /** @var Tag|string|null $tag */
         $tag = $this->route('tag');
 
         return [
@@ -25,7 +26,7 @@ class UpdateTagRequest extends FormRequest
                 'string',
                 'max:255',
                 function (string $attribute, mixed $value, callable $fail) use ($tag): void {
-                    if (Tag::whereRaw("name->>'en' = ?", [$value])->where('id', '!=', $tag->id)->exists()) {
+                    if ($tag instanceof Tag && Tag::whereRaw("name->>'en' = ?", [$value])->where('id', '!=', $tag->id)->exists()) {
                         $fail('Een tag met deze naam bestaat al.');
                     }
                 },

@@ -19,6 +19,7 @@ class ExcerptController extends Controller
                 "Generate an excerpt for this project:\n\n{$plainText}"
             );
 
+            /** @var array{excerpt: string} $response */
             return response()->json(['excerpt' => $response['excerpt']]);
         } catch (Throwable) {
             return response()->json(

@@ -10,6 +10,9 @@ use Illuminate\Support\Facades\Storage;
 /** @mixin File */
 class FileResource extends JsonResource
 {
+    /**
+     * @return array<string, mixed>
+     */
     public function toArray(Request $request): array
     {
         return [

@@ -50,6 +50,9 @@ class Project extends Model implements HasMedia
             ->doNotGenerateSlugsOnUpdate();
     }
 
+    /**
+     * @return BelongsToMany<File, $this>
+     */
     public function files(): BelongsToMany
     {
         return $this->belongsToMany(File::class)->withTimestamps();

@@ -52,12 +52,15 @@ class FileController extends Controller
 
     public function destroy(File $file): JsonResponse
     {
+        /** @var array<int, string> $responsivePaths */
+        $responsivePaths = $file->responsive_paths ?? [];
+
         $pathsToDelete = array_filter([
             $file->path,
             $file->webp_path,
             $file->thumbnail_path,
             $file->og_path,
-            ...array_values($file->responsive_paths ?? []),
+            ...array_values($responsivePaths),
         ]);
 
         Storage::disk($file->disk)->delete($pathsToDelete);

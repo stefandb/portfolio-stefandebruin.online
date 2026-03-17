@@ -6,8 +6,12 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Facades\Storage;
 
+/**
+ * @property-read bool $is_image
+ */
 class File extends Model
 {
+    /** @use HasFactory<\Database\Factories\FileFactory> */
     use HasFactory;
 
     protected $appends = ['url', 'webp_url', 'thumbnail_url', 'og_url', 'responsive_urls', 'is_image'];
@@ -80,12 +84,15 @@ class File extends Model
     /** @return array<int, string>|null */
     public function getResponsiveUrlsAttribute(): ?array
     {
-        if (! $this->responsive_paths) {
+        if (empty($this->responsive_paths)) {
             return null;
         }
 
-        return collect($this->responsive_paths)
-            ->map(fn (string $path) => Storage::disk($this->disk)->url($path))
+        /** @var array<int, string> $paths */
+        $paths = $this->responsive_paths;
+
+        return collect($paths)
+            ->map(fn (string $path) => Storage::disk((string) $this->disk)->url($path))
             ->all();
     }
 }

@@ -6,6 +6,9 @@ use App\Models\Redirect;
 use Illuminate\Database\Eloquent\Factories\Factory;
 use Illuminate\Support\Carbon;
 
+/**
+ * @extends \Illuminate\Database\Eloquent\Factories\Factory<\App\Models\Redirect>
+ */
 class RedirectFactory extends Factory
 {
     protected $model = Redirect::class;

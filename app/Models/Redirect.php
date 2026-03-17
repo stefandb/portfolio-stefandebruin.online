@@ -8,6 +8,7 @@ use Illuminate\Database\Eloquent\SoftDeletes;
 
 class Redirect extends Model
 {
+    /** @use HasFactory<\Database\Factories\RedirectFactory> */
     use HasFactory, SoftDeletes;
 
     protected $fillable = [
