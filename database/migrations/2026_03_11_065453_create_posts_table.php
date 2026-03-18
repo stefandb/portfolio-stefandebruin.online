@@ -1,5 +1,6 @@
 <?php
 
+use App\Models\PostSerie;
 use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
@@ -17,7 +18,7 @@ return new class extends Migration
             $table->integer('reading_time')->nullable();
             $table->string('status');
             $table->dateTime('published_at');
-            $table->foreignIdFor(\App\Models\PostSerie::class);
+            $table->foreignIdFor(PostSerie::class);
             $table->timestamps();
             $table->softDeletes();
         });

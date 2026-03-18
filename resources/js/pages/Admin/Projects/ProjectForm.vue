@@ -100,7 +100,7 @@ const removeImage = (uuid: string) => {
 </script>
 
 <template>
-    <form @submit.prevent="submit" class="space-y-6">
+    <form class="space-y-6">
         <!-- Card 1: title, slug, description (geen CardTitle) -->
         <Card>
             <CardContent class="space-y-6 pt-6">

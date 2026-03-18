@@ -144,7 +144,7 @@ return [
     */
 
     'features' => [
-//        Features::registration(),
+        //        Features::registration(),
         ...(env('ALLOW_REGISTRATION', true) ? [Features::registration()] : []),
         Features::resetPasswords(),
         Features::resetPasswords(),

@@ -2,6 +2,7 @@
 
 namespace App\Http\Requests\Admin;
 
+use Illuminate\Contracts\Validation\ValidationRule;
 use Illuminate\Foundation\Http\FormRequest;
 use Spatie\Tags\Tag;
 
@@ -13,7 +14,7 @@ class UpdateTagRequest extends FormRequest
     }
 
     /**
-     * @return array<string, \Illuminate\Contracts\Validation\ValidationRule|array<mixed>|string|callable>
+     * @return array<string, ValidationRule|array<mixed>|string|callable>
      */
     public function rules(): array
     {

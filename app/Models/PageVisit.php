@@ -3,6 +3,7 @@
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\MorphTo;
 
 class PageVisit extends Model
 {
@@ -18,9 +19,9 @@ class PageVisit extends Model
     ];
 
     /**
-     * @return \Illuminate\Database\Eloquent\Relations\MorphTo<Model, $this>
+     * @return MorphTo<Model, $this>
      */
-    public function trackable(): \Illuminate\Database\Eloquent\Relations\MorphTo
+    public function trackable(): MorphTo
     {
         return $this->morphTo();
     }

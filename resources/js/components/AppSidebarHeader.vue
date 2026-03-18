@@ -1,10 +1,10 @@
 <script setup lang="ts">
+import { computed } from 'vue';
 import Breadcrumbs from '@/components/Breadcrumbs.vue';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { SidebarTrigger } from '@/components/ui/sidebar';
 import type { BreadcrumbItem } from '@/types';
-import { computed } from 'vue';
 
 const props = withDefaults(
     defineProps<{

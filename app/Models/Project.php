@@ -3,6 +3,7 @@
 namespace App\Models;
 
 use App\Observers\ProjectObserver;
+use Database\Factories\ProjectFactory;
 use Illuminate\Database\Eloquent\Attributes\ObservedBy;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
@@ -17,7 +18,7 @@ use Spatie\Tags\HasTags;
 #[ObservedBy(ProjectObserver::class)]
 class Project extends Model implements HasMedia
 {
-    /** @use HasFactory<\Database\Factories\ProjectFactory> */
+    /** @use HasFactory<ProjectFactory> */
     use HasFactory, HasSlug, HasTags, InteractsWithMedia, SoftDeletes;
 
     protected $fillable = [

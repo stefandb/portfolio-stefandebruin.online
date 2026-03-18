@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use Database\Factories\PostSerieFactory;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\HasMany;
@@ -9,7 +10,7 @@ use Illuminate\Database\Eloquent\SoftDeletes;
 
 class PostSerie extends Model
 {
-    /** @use HasFactory<\Database\Factories\PostSerieFactory> */
+    /** @use HasFactory<PostSerieFactory> */
     use HasFactory, SoftDeletes;
 
     protected $fillable = [

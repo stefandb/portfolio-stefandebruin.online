@@ -1,12 +1,17 @@
 <?php
 
 namespace App\Http\Middleware;
-use Closure;use Illuminate\Http\Request;use Inertia\Inertia;use Inertia\Response;
 
-class UnderConstructionMiddleware{
-    public function handle(Request $request, Closure $next)
+use Closure;
+use Illuminate\Http\Request;
+use Inertia\Inertia;
+use Symfony\Component\HttpFoundation\Response;
+
+class UnderConstructionMiddleware
+{
+    public function handle(Request $request, Closure $next): Response
     {
-        if (!config('app.under_construction')) {
+        if (! config('app.under_construction')) {
             return $next($request);
         }
 
@@ -21,10 +26,13 @@ class UnderConstructionMiddleware{
 
         // 🔥 GET / HEAD → toon pagina
         if ($request->isMethod('GET') || $request->isMethod('HEAD')) {
-            return Inertia::render('UnderConstruction')
+            $response = Inertia::render('UnderConstruction')
                 ->toResponse($request)
-                ->setStatusCode(503)
-                ->header('Retry-After', 3600);
+                ->setStatusCode(503);
+
+            $response->headers->set('Retry-After', '3600');
+
+            return $response;
         }
 
         if ($request->header('X-Inertia')) {
@@ -37,11 +45,11 @@ class UnderConstructionMiddleware{
         if ($request->expectsJson()) {
             return response()->json([
                 'message' => 'Service temporarily unavailable.',
-            ], 503)->header('Retry-After', 3600);
+            ], 503)->header('Retry-After', '3600');
         }
 
         // 🔥 Fallback (bijv. form POST zonder JSON)
         return response('', 503)
-            ->header('Retry-After', 3600);
+            ->header('Retry-After', '3600');
     }
 }

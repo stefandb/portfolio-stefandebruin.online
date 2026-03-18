@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use Database\Factories\FileFactory;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Facades\Storage;
@@ -11,7 +12,7 @@ use Illuminate\Support\Facades\Storage;
  */
 class File extends Model
 {
-    /** @use HasFactory<\Database\Factories\FileFactory> */
+    /** @use HasFactory<FileFactory> */
     use HasFactory;
 
     protected $appends = ['url', 'webp_url', 'thumbnail_url', 'og_url', 'responsive_urls', 'is_image'];

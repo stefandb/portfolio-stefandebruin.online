@@ -13,8 +13,7 @@ it('returns 503 for guests when under construction', function () {
 
     $response->assertStatus(503);
     $response->assertHeader('Retry-After', '3600');
-    $response->assertInertia(fn ($page) =>
-    $page->component('UnderConstruction')
+    $response->assertInertia(fn ($page) => $page->component('UnderConstruction')
     );
 });
 
@@ -44,8 +43,7 @@ it('returns inertia page for GET requests', function () {
     $response = $this->get('/');
 
     $response->assertStatus(503);
-    $response->assertInertia(fn ($page) =>
-    $page->component('UnderConstruction')
+    $response->assertInertia(fn ($page) => $page->component('UnderConstruction')
     );
 });
 
