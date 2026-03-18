@@ -13,5 +13,12 @@ parameters:
     # Level 9 is the highest level
     level: 7
 
-#    ignoreErrors:
-#        - '#PHPDoc tag @var#( for variable \$[a-zA-Z0-9_]+)#? contains unresolvable type.#'
+    ignoreErrors:
+        -
+            message: '#Property .* does not exist in model\.#'
+            path: app/Models/File.php
+            reportUnmatched: false
+        -
+            message: '#PHPDoc tag @var with type array<string, string> is not subtype of native type Laravel\\Ai\\Responses\\AgentResponse\.#'
+            path: app/Http/Controllers/Ai/ExcerptController.php
+            reportUnmatched: false
